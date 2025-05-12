@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAuth } from "~/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
-import { ColoredNavLink } from "~/components/common/ColoredNavLink";
-import { Button } from "~/components/ui/button";
+import { ColoredNavLink } from "@/components/common/ColoredNavLink";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,7 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle
-} from "~/components/ui/card";
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -21,8 +21,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   firstName: z.string().max(20).optional(),

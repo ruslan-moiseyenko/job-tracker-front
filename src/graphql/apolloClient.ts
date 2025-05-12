@@ -1,20 +1,24 @@
-import * as apolloCore from "@apollo/client/core";
-import * as apolloContext from "@apollo/client/link/context";
-import * as apolloError from "@apollo/client/link/error";
-
-const { onError } = apolloError;
-const { setContext } = apolloContext;
-const { ApolloClient, InMemoryCache, from } = apolloCore;
+import {
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+  from
+} from "@apollo/client/core";
+import { onError } from "@apollo/client/link/error";
+import { setContext } from "@apollo/client/link/context";
 
 // Check if we're running in a browser environment
 const isBrowser = typeof window !== "undefined";
 
 // Create an empty link for SSR context
-let httpLink: any = { request: () => {} };
+import { ApolloLink } from "@apollo/client/core";
+
+let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
+  forward ? forward(operation) : null
+);
 
 // Only import and use createHttpLink in browser context
 if (isBrowser) {
-  const { createHttpLink } = apolloCore;
   httpLink = createHttpLink({
     uri: import.meta.env.VITE_GRAPHQL_API_URL || "/graphql"
   });
@@ -64,15 +68,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 // Create Apollo Client
-export const createApolloClient = () => {
-  return new ApolloClient({
-    link: from([errorLink, authLink, httpLink]),
-    cache: new InMemoryCache(),
-    connectToDevTools: true,
-    defaultOptions: {
-      watchQuery: {
-        fetchPolicy: "cache-and-network"
-      }
+export const apolloClient = new ApolloClient({
+  link: from([errorLink, authLink, httpLink]),
+  cache: new InMemoryCache(),
+  connectToDevTools: true,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-and-network"
     }
-  });
-};
+  }
+});

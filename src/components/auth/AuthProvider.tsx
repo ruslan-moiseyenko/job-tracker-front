@@ -1,35 +1,20 @@
-import React, { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-// Import from tag path to avoid SSR issues
-import { gql } from "@apollo/client/core";
-import * as reactHooks from "@apollo/client/react";
-const { useApolloClient } = reactHooks;
+import {
+  createContext,
+  useState,
+  useEffect,
+  type FC,
+  type PropsWithChildren
+} from "react";
 
-// Define types for our auth context
-type User = {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-};
-
-type AuthContextType = {
-  user: User | null;
-  token: string | null;
-  loading: boolean;
-  error: Error | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  register: (userData: {
-    email: string;
-    password: string;
-    firstName?: string;
-    lastName?: string;
-  }) => Promise<void>;
-};
+import { useApolloClient } from "@apollo/client";
+import { useNavigate } from "@tanstack/react-router";
+import { GET_ME_QUERY } from "@/graphql/auth/queries";
+import { LOGIN_MUTATION, REGISTER_MUTATION } from "@/graphql/auth/mutations";
+import type { AuthContextType, User } from "@/components/auth/types";
 
 // Create context with default values
 export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
   user: null,
   token: null,
   loading: false,
@@ -39,48 +24,8 @@ export const AuthContext = createContext<AuthContextType>({
   register: async () => {}
 });
 
-// GraphQL queries/mutations
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(input: { email: $email, password: $password }) {
-      accessToken
-      refreshToken
-      user {
-        email
-      }
-    }
-  }
-`;
-
-const REGISTER_MUTATION = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
-      token
-      user {
-        id
-        email
-        firstName
-        lastName
-      }
-    }
-  }
-`;
-
-const GET_ME_QUERY = gql`
-  query GetMe {
-    me {
-      id
-      email
-      firstName
-      lastName
-    }
-  }
-`;
-
 // Define the auth provider component
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children
-}) => {
+export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("auth-token")
@@ -142,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         mutation: LOGIN_MUTATION,
         variables: { email, password }
       });
+      //TODO: delete console.log
       console.log("🚀 ~ login ~ LOGIN RESULT: ", data);
 
       if (data?.login?.accessToken) {
@@ -149,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.setItem("refreshToken", data.login.refreshToken);
         setToken(data.login.token);
         setUser(data.login.user);
-        navigate("/dashboard");
+        navigate({ to: "/dashboard" });
       } else {
         throw new Error("Login failed");
       }
@@ -181,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.setItem("auth-token", data.register.token);
         setToken(data.register.token);
         setUser(data.register.user);
-        navigate("/dashboard");
+        navigate({ to: "/dashboard" });
       } else {
         throw new Error("Registration failed");
       }
@@ -203,12 +149,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     client.resetStore();
 
     // Redirect to login page
-    navigate("/");
+    navigate({ to: "/" });
   };
 
   return (
     <AuthContext.Provider
       value={{
+        isAuthenticated: !!user,
         user,
         token,
         loading,

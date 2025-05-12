@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-// import { useAuth } from "~/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +23,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -50,6 +50,7 @@ export const LoginCard = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
+  const { login, loading, error } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,13 +61,13 @@ export const LoginCard = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("🚀 ~ onSubmit ~ values:", values);
-    // try {
-    //   await login(values.email, values.password);
-    //   // Navigation is handled in the login function
-    // } catch (err) {
-    //   // Form validation errors are handled by the form
-    //   console.error("Login failed:", err);
-    // }
+    try {
+      await login(values.email, values.password);
+      // Navigation is handled in the login function
+    } catch (err) {
+      // Form validation errors are handled by the form
+      console.error("Login failed:", err);
+    }
   }
   return (
     <Card className={cn("flex flex-col gap-6 w-sm", className)} {...props}>
@@ -105,12 +106,12 @@ export const LoginCard = ({
                   <FormControl>
                     <Input type="password" placeholder="password" {...field} />
                   </FormControl>
-                  <ColoredNavLink to="#">Forgot password?</ColoredNavLink>
+                  <ColoredNavLink to="/">Forgot password?</ColoredNavLink>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
@@ -120,7 +121,7 @@ export const LoginCard = ({
               <div className="text-destructive text-sm mt-1">
                 Authentication failed. Please check your credentials.
               </div>
-            )} */}
+            )}
             <Button variant="outline" className="w-full">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
