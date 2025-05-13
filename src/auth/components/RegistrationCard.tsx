@@ -1,10 +1,20 @@
+import { ColoredNavLink } from "@/components/common/ColoredNavLink";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-// import { useAuth } from "@/hooks/useAuth";
-// import { Loader2 } from "lucide-react";
-import { ColoredNavLink } from "@/components/common/ColoredNavLink";
-// import { Button } from "@/components/ui/button";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -13,16 +23,15 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
+import type { IRegisterInput } from "@/auth/types";
+
+type RegistrationCardProps = PropsWithChildren &
+  ComponentPropsWithoutRef<"div"> & {
+    isLoading: boolean;
+    error?: string | null;
+    handleSubmit: (data: IRegisterInput) => Promise<void>;
+  };
 
 const formSchema = z.object({
   firstName: z.string().max(20).optional(),
@@ -47,9 +56,12 @@ const formSchema = z.object({
     )
 });
 
-export const RegistrationCard = () => {
-  // const { register, loading, error } = useAuth();
-
+export const RegistrationCard: FC<RegistrationCardProps> = ({
+  className,
+  isLoading,
+  handleSubmit,
+  error
+}) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,67 +73,98 @@ export const RegistrationCard = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("🚀 ~ onSubmit ~ values:", values);
-    // try {
-    //   await register({
-    //     email: values.email,
-    //     password: values.password,
-    //     firstName: values.firstName || undefined,
-    //     lastName: values.lastName || undefined
-    //   });
-    //   // Navigation is handled in the register function
-    // } catch (err) {
-    //   console.error("Registration failed:", err);
-    // }
+    try {
+      await handleSubmit({
+        email: values.email,
+        password: values.password,
+        firstName: values.firstName,
+        lastName: values.lastName
+      });
+    } catch (err) {
+      console.error("Registration failed:", err);
+
+      if (error) {
+        // Handle email-related errors (like email already in use)
+        if (error.toLowerCase().includes("email")) {
+          form.setError("email", {
+            type: "server",
+            message: error
+          });
+        }
+        // Handle password-related errors
+        else if (error.toLowerCase().includes("password")) {
+          form.setError("password", {
+            type: "server",
+            message: error
+          });
+        }
+        // Generic registration error
+        else {
+          form.setError("root", {
+            type: "server",
+            message: error
+          });
+        }
+      }
+    }
   }
 
   return (
-    <Card className="w-100">
+    <Card className={cn("flex flex-col gap-6 w-sm", className)}>
       <CardHeader>
-        <CardTitle>Registration</CardTitle>
+        <CardTitle>Create an account</CardTitle>
         <CardDescription>
-          Create an account to start tracking your job applications.
+          Enter your information below to create your account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First name</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="First name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last name</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Last name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {form.formState.errors.root && (
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+                {form.formState.errors.root.message}
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Email <span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="email" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="example@email.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,36 +175,27 @@ export const RegistrationCard = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Password <span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="password" {...field} />
+                    <Input type="password" placeholder="Password" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Fields marked with{" "}
-                    <span className="text-destructive">*</span> are required.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* <Button type="submit" disabled={loading}>
-              {loading ? (
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
-              {loading ? "Registering..." : "Submit"}
+              {isLoading ? "Creating Account..." : "Register"}
             </Button>
-            {error && (
-              <div className="text-destructive text-sm mt-1">
-                Registration failed. Please try again.
-              </div>
-            )} */}
           </form>
         </Form>
       </CardContent>
       <CardFooter>
-        <ColoredNavLink to="/">Already registered?</ColoredNavLink>
+        <ColoredNavLink to="/login">
+          Already have an account? Login
+        </ColoredNavLink>
       </CardFooter>
     </Card>
   );

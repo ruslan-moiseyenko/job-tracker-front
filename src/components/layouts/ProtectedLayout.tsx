@@ -1,8 +1,9 @@
+import { Route } from "@/routes/__root";
 import { Outlet } from "@tanstack/react-router";
-import { Route as RootRoute } from "../../routes/__root";
+// import { Route as RootRoute } from "../../routes/__root";
 
-export function AuthLayout() {
-  const { auth } = RootRoute.useRouteContext();
+export function ProtectedLayout() {
+  const { auth } = Route.useRouteContext();
 
   return (
     <div className="auth-layout">

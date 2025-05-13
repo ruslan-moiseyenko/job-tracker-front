@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { AuthLayout } from "../../components/layouts/AuthLayout";
+import { ProtectedLayout } from "../../components/layouts/ProtectedLayout";
 
-export const Route = createFileRoute("/_auth")({
+export const Route = createFileRoute("/_protected")({
   beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated) {
       throw redirect({
@@ -12,5 +12,5 @@ export const Route = createFileRoute("/_auth")({
       });
     }
   },
-  component: AuthLayout
+  component: ProtectedLayout
 });

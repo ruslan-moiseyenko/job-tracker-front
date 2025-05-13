@@ -28,7 +28,7 @@ if (isBrowser) {
 // Auth link middleware to add token to headers
 const authLink = setContext((_, { headers }) => {
   // Get the authentication token from local storage if it exists
-  const token = isBrowser ? localStorage.getItem("auth-token") : null;
+  const token = isBrowser ? localStorage.getItem("access_token") : null;
 
   // Return the headers to the context so httpLink can read them
   return {
@@ -48,9 +48,14 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
       );
 
       // Handle unauthorized errors
-      if (message.includes("unauthorized") || message.includes("token")) {
+      if (
+        message.includes("unauthorized") ||
+        message.includes("token") ||
+        message.includes("logged in")
+      ) {
         if (isBrowser) {
-          localStorage.removeItem("auth-token");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
           // Force reload to reset Apollo Client state
           if (
             window.location.pathname !== "/" &&

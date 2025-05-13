@@ -1,6 +1,6 @@
 import { ColoredNavLink } from "@/components/common/ColoredNavLink";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,6 +23,15 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
+import type { ILoginInput } from "@/auth/types";
+
+type LoginCardProps = PropsWithChildren &
+  ComponentPropsWithoutRef<"div"> & {
+    isLoading: boolean;
+    error?: string | null;
+    handleSubmit: ({ email, password }: ILoginInput) => Promise<void>;
+  };
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -45,10 +54,12 @@ const formSchema = z.object({
     )
 });
 
-export const LoginCard = ({
+export const LoginCard: FC<LoginCardProps> = ({
   className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) => {
+  isLoading,
+  handleSubmit,
+  error
+}) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,16 +70,46 @@ export const LoginCard = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("🚀 ~ onSubmit ~ values:", values);
-    // try {
-    //   await login(values.email, values.password);
-    //   // Navigation is handled in the login function
-    // } catch (err) {
-    //   // Form validation errors are handled by the form
-    //   console.error("Login failed:", err);
-    // }
+    try {
+      await handleSubmit({
+        email: values.email,
+        password: values.password
+      });
+    } catch (err) {
+      // Display backend error as a form error
+      console.error("Login failed:", err);
+
+      if (error) {
+        // If error mentions credentials or authentication, show it on the password field
+        if (
+          error.toLowerCase().includes("password") ||
+          error.toLowerCase().includes("invalid") ||
+          error.toLowerCase().includes("credentials")
+        ) {
+          form.setError("password", {
+            type: "server",
+            message: error
+          });
+        }
+        // If error mentions email specifically
+        else if (error.toLowerCase().includes("email")) {
+          form.setError("email", {
+            type: "server",
+            message: error
+          });
+        }
+        // Default to setting a root error (generic error)
+        else {
+          form.setError("root", {
+            type: "server",
+            message: error
+          });
+        }
+      }
+    }
   }
   return (
-    <Card className={cn("flex flex-col gap-6 w-sm", className)} {...props}>
+    <Card className={cn("flex flex-col gap-6 w-sm", className)}>
       <CardHeader>
         <CardTitle>Login to JobTracker</CardTitle>
         <CardDescription>
@@ -78,6 +119,11 @@ export const LoginCard = ({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {form.formState.errors.root && (
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+                {form.formState.errors.root.message}
+              </div>
+            )}
             <FormField
               control={form.control}
               name="email"
@@ -109,17 +155,12 @@ export const LoginCard = ({
                 </FormItem>
               )}
             />
-            {/* <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
-              {loading ? "Logging in..." : "Login"}
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
-            {error && (
-              <div className="text-destructive text-sm mt-1">
-                Authentication failed. Please check your credentials.
-              </div>
-            )} */}
             <Button variant="outline" className="w-full">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path

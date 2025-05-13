@@ -11,29 +11,23 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as RegisterImport } from './routes/register'
-import { Route as LoginImport } from './routes/login'
-import { Route as AuthRouteImport } from './routes/_auth/route'
+import { Route as AuthImport } from './routes/_auth'
+import { Route as ProtectedRouteImport } from './routes/_protected/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthPanelImport } from './routes/_auth/panel'
-import { Route as AuthDashboardImport } from './routes/_auth/dashboard'
+import { Route as ProtectedPanelImport } from './routes/_protected/panel'
+import { Route as ProtectedDashboardImport } from './routes/_protected/dashboard'
+import { Route as AuthRegisterImport } from './routes/_auth/register'
+import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
 
-const RegisterRoute = RegisterImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthRouteRoute = AuthRouteImport.update({
+const AuthRoute = AuthImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProtectedRouteRoute = ProtectedRouteImport.update({
+  id: '/_protected',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -43,16 +37,28 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthPanelRoute = AuthPanelImport.update({
+const ProtectedPanelRoute = ProtectedPanelImport.update({
   id: '/panel',
   path: '/panel',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => ProtectedRouteRoute,
 } as any)
 
-const AuthDashboardRoute = AuthDashboardImport.update({
+const ProtectedDashboardRoute = ProtectedDashboardImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => ProtectedRouteRoute,
+} as any)
+
+const AuthRegisterRoute = AuthRegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthLoginRoute = AuthLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -66,86 +72,106 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ProtectedRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/_auth': {
       id: '/_auth'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
-    '/login': {
-      id: '/login'
+    '/_auth/login': {
+      id: '/_auth/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof AuthImport
     }
-    '/register': {
-      id: '/register'
+    '/_auth/register': {
+      id: '/_auth/register'
       path: '/register'
       fullPath: '/register'
-      preLoaderRoute: typeof RegisterImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthRegisterImport
+      parentRoute: typeof AuthImport
     }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
+    '/_protected/dashboard': {
+      id: '/_protected/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardImport
-      parentRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof ProtectedDashboardImport
+      parentRoute: typeof ProtectedRouteImport
     }
-    '/_auth/panel': {
-      id: '/_auth/panel'
+    '/_protected/panel': {
+      id: '/_protected/panel'
       path: '/panel'
       fullPath: '/panel'
-      preLoaderRoute: typeof AuthPanelImport
-      parentRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof ProtectedPanelImport
+      parentRoute: typeof ProtectedRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface AuthRouteRouteChildren {
-  AuthDashboardRoute: typeof AuthDashboardRoute
-  AuthPanelRoute: typeof AuthPanelRoute
+interface ProtectedRouteRouteChildren {
+  ProtectedDashboardRoute: typeof ProtectedDashboardRoute
+  ProtectedPanelRoute: typeof ProtectedPanelRoute
 }
 
-const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthDashboardRoute: AuthDashboardRoute,
-  AuthPanelRoute: AuthPanelRoute,
+const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
+  ProtectedDashboardRoute: ProtectedDashboardRoute,
+  ProtectedPanelRoute: ProtectedPanelRoute,
 }
 
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
+const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
+  ProtectedRouteRouteChildren,
 )
+
+interface AuthRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRegisterRoute: AuthRegisterRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '': typeof AuthRouteRouteWithChildren
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/panel': typeof AuthPanelRoute
+  '': typeof AuthRouteWithChildren
+  '/login': typeof AuthLoginRoute
+  '/register': typeof AuthRegisterRoute
+  '/dashboard': typeof ProtectedDashboardRoute
+  '/panel': typeof ProtectedPanelRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '': typeof AuthRouteRouteWithChildren
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/panel': typeof AuthPanelRoute
+  '': typeof AuthRouteWithChildren
+  '/login': typeof AuthLoginRoute
+  '/register': typeof AuthRegisterRoute
+  '/dashboard': typeof ProtectedDashboardRoute
+  '/panel': typeof ProtectedPanelRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/_auth': typeof AuthRouteRouteWithChildren
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/_auth/dashboard': typeof AuthDashboardRoute
-  '/_auth/panel': typeof AuthPanelRoute
+  '/_protected': typeof ProtectedRouteRouteWithChildren
+  '/_auth': typeof AuthRouteWithChildren
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/register': typeof AuthRegisterRoute
+  '/_protected/dashboard': typeof ProtectedDashboardRoute
+  '/_protected/panel': typeof ProtectedPanelRoute
 }
 
 export interface FileRouteTypes {
@@ -156,26 +182,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_protected'
     | '/_auth'
-    | '/login'
-    | '/register'
-    | '/_auth/dashboard'
-    | '/_auth/panel'
+    | '/_auth/login'
+    | '/_auth/register'
+    | '/_protected/dashboard'
+    | '/_protected/panel'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
+  ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRouteRoute: AuthRouteRouteWithChildren,
-  LoginRoute: LoginRoute,
-  RegisterRoute: RegisterRoute,
+  ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -189,34 +214,42 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_auth",
-        "/login",
-        "/register"
+        "/_protected",
+        "/_auth"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/_auth": {
-      "filePath": "_auth/route.tsx",
+    "/_protected": {
+      "filePath": "_protected/route.tsx",
       "children": [
-        "/_auth/dashboard",
-        "/_auth/panel"
+        "/_protected/dashboard",
+        "/_protected/panel"
       ]
     },
-    "/login": {
-      "filePath": "login.tsx"
+    "/_auth": {
+      "filePath": "_auth.tsx",
+      "children": [
+        "/_auth/login",
+        "/_auth/register"
+      ]
     },
-    "/register": {
-      "filePath": "register.tsx"
-    },
-    "/_auth/dashboard": {
-      "filePath": "_auth/dashboard.tsx",
+    "/_auth/login": {
+      "filePath": "_auth/login.tsx",
       "parent": "/_auth"
     },
-    "/_auth/panel": {
-      "filePath": "_auth/panel.tsx",
+    "/_auth/register": {
+      "filePath": "_auth/register.tsx",
       "parent": "/_auth"
+    },
+    "/_protected/dashboard": {
+      "filePath": "_protected/dashboard.tsx",
+      "parent": "/_protected"
+    },
+    "/_protected/panel": {
+      "filePath": "_protected/panel.tsx",
+      "parent": "/_protected"
     }
   }
 }

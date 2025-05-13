@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@apollo/client";
 import { GET_ME_QUERY } from "@/auth/queries";
 
-export const Route = createFileRoute("/_auth/panel")({
+export const Route = createFileRoute("/_protected/panel")({
   component: PanelPage
 });
 

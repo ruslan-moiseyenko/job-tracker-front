@@ -6,13 +6,17 @@ import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen.ts";
 
 import { Auth } from "@/auth/client.ts";
+import { ThemeProvider } from "@/components/common/ThemeProvider.tsx";
 import { apolloClient } from "@/graphql/apolloClient.ts";
 import { ApolloProvider } from "@apollo/client";
 import reportWebVitals from "./reportWebVitals.ts";
 import "./styles.css";
 
 const auth = new Auth();
-auth.checkAuth();
+// Only check auth if there's a token - prevents unnecessary GraphQL errors for non-logged-in users
+if (localStorage.getItem("access_token")) {
+  auth.checkAuth().catch(console.error);
+}
 
 // Create a new router instance
 const router = createRouter({
@@ -36,7 +40,9 @@ declare module "@tanstack/react-router" {
 function App() {
   return (
     <ApolloProvider client={apolloClient}>
-      <RouterProvider router={router} />
+      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </ApolloProvider>
   );
 }
