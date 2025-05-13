@@ -25,3 +25,14 @@ export const REGISTER_MUTATION = gql`
     }
   }
 `;
+
+export const GET_ME_QUERY = gql`
+  query GetMe {
+    me {
+      id
+      email
+      firstName
+      lastName
+    }
+  }
+`;

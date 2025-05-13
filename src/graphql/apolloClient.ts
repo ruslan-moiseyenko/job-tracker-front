@@ -4,8 +4,8 @@ import {
   createHttpLink,
   from
 } from "@apollo/client/core";
-import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
+import { onError } from "@apollo/client/link/error";
 
 // Check if we're running in a browser environment
 const isBrowser = typeof window !== "undefined";
@@ -20,7 +20,8 @@ let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
 // Only import and use createHttpLink in browser context
 if (isBrowser) {
   httpLink = createHttpLink({
-    uri: import.meta.env.VITE_GRAPHQL_API_URL || "/graphql"
+    uri: import.meta.env.VITE_GRAPHQL_API_URL,
+    credentials: "include"
   });
 }
 
@@ -74,7 +75,19 @@ export const apolloClient = new ApolloClient({
   connectToDevTools: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-and-network"
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "all"
+    },
+    query: {
+      fetchPolicy: "network-only",
+      errorPolicy: "all"
+    },
+    mutate: {
+      errorPolicy: "all"
     }
   }
 });
+
+export const resetApolloCache = async () => {
+  await apolloClient.resetStore();
+};

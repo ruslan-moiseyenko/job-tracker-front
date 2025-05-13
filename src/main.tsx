@@ -1,23 +1,29 @@
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { ApolloProvider } from "@apollo/client";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen.ts";
 
-import "./styles.css";
-import reportWebVitals from "./reportWebVitals.ts";
+import { Auth } from "@/auth/client.ts";
 import { apolloClient } from "@/graphql/apolloClient.ts";
+import { ApolloProvider } from "@apollo/client";
+import reportWebVitals from "./reportWebVitals.ts";
+import "./styles.css";
+
+const auth = new Auth();
+auth.checkAuth();
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
-  context: {},
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
-  defaultPreloadStaleTime: 0
+  defaultPreloadStaleTime: 0,
+  context: {
+    auth
+  }
 });
 
 // Register the router instance for type safety
@@ -27,15 +33,21 @@ declare module "@tanstack/react-router" {
   }
 }
 
+function App() {
+  return (
+    <ApolloProvider client={apolloClient}>
+      <RouterProvider router={router} />
+    </ApolloProvider>
+  );
+}
+
 // Render the app
 const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <ApolloProvider client={apolloClient}>
-        <RouterProvider router={router} />
-      </ApolloProvider>
+      <App />
     </StrictMode>
   );
 }
