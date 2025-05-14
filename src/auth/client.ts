@@ -5,9 +5,10 @@ import {
 } from "@/auth/queries";
 import type {
   IAuthClient,
-  ILoginMutationResult,
-  IMeQueryResult,
+  ILoginMutationResponse,
+  IMeQueryResponse,
   IRegisterInput,
+  IRegistrationMutationResponse,
   User
 } from "@/auth/types";
 import { apolloClient, resetApolloCache } from "@/graphql/apolloClient";
@@ -42,7 +43,7 @@ export class Auth implements IAuthClient {
 
     this.isLoading = true;
     try {
-      const result: ApolloQueryResult<IMeQueryResult> =
+      const result: ApolloQueryResult<IMeQueryResponse> =
         await apolloClient.query({
           query: GET_ME_QUERY,
           fetchPolicy: "network-only" // Always fetch the latest data, no caching
@@ -78,7 +79,7 @@ export class Auth implements IAuthClient {
     this.isLoading = true;
 
     try {
-      const result = await apolloClient.mutate<ILoginMutationResult>({
+      const result = await apolloClient.mutate<ILoginMutationResponse>({
         mutation: LOGIN_MUTATION,
         variables: { email, password }
       });
@@ -111,18 +112,17 @@ export class Auth implements IAuthClient {
     this.isLoading = true;
 
     try {
-      const result = await apolloClient.mutate({
+      const result = await apolloClient.mutate<IRegistrationMutationResponse>({
         mutation: REGISTER_MUTATION,
         variables: { input: data }
       });
 
       if (result.data?.register) {
-        const { token, user } = result.data.register;
+        const { accessToken, refreshToken, user } = result.data.register;
 
-        // Store token (assuming backend returns a single token for registration)
-        localStorage.setItem("access_token", token);
+        localStorage.setItem("access_token", accessToken);
+        localStorage.setItem("refresh_token", refreshToken);
 
-        // Set user data
         this.user = user;
         this.isAuthenticated = true;
 

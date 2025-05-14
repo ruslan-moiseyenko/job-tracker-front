@@ -22,7 +22,7 @@ export interface IAuthClient {
   checkAuth: () => Promise<boolean>;
 }
 
-export interface ILoginMutationResult {
+export interface ILoginMutationResponse {
   login: {
     accessToken: string;
     refreshToken: string;
@@ -32,12 +32,16 @@ export interface ILoginMutationResult {
   };
 }
 
-export interface IRegisterMutationResult {
+export interface IRegistrationMutationResponse {
   register: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
+    refreshToken: string;
+    accessToken: string;
+    user: {
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+    };
   };
 }
 
@@ -46,7 +50,7 @@ export interface ILoginInput {
   password: string;
 }
 
-export interface IMeQueryResult {
+export interface IMeQueryResponse {
   me: User | null;
 }
 

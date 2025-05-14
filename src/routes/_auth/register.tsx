@@ -23,8 +23,7 @@ function RegisterPage() {
       setError(null); // Clear previous errors
       await auth.register(data);
       navigate({ to: "/panel" });
-    } catch (err) {
-      console.log("🚀 ~ RegisterPage, handleSubmit ~ err:", err);
+    } catch (_err) {
       setError(
         "Registration failed. Please check your information and try again."
       );
