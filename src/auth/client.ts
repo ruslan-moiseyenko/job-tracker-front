@@ -81,8 +81,16 @@ export class Auth implements IAuthClient {
     try {
       const result = await apolloClient.mutate<ILoginMutationResponse>({
         mutation: LOGIN_MUTATION,
-        variables: { email, password }
+        variables: { email, password },
+        errorPolicy: "none"
       });
+
+      // Check if there are GraphQL errors in the response
+      if (result.errors && result.errors.length > 0) {
+        const errorMessage = result.errors[0].message || "Login failed";
+        console.log("GraphQL error detected:", errorMessage);
+        throw new Error(errorMessage);
+      }
 
       if (result.data) {
         const { accessToken, refreshToken, user } = result.data.login;
@@ -101,8 +109,11 @@ export class Auth implements IAuthClient {
         await resetApolloCache();
       }
     } catch (error) {
-      console.error("Login error: ", error);
-      throw error;
+      // console.log("🔍 Error caught in auth client login method:", error);
+
+      // Make sure we properly forward the GraphQL error
+      this.isLoading = false;
+      throw error; // Re-throw the original error to preserve its structure
     } finally {
       this.isLoading = false;
     }

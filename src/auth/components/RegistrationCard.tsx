@@ -1,6 +1,7 @@
 import { ColoredNavLink } from "@/components/common/ColoredNavLink";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -82,32 +83,35 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
       });
     } catch (err) {
       console.error("Registration failed:", err);
-
-      if (error) {
-        // Handle email-related errors (like email already in use)
-        if (error.toLowerCase().includes("email")) {
-          form.setError("email", {
-            type: "server",
-            message: error
-          });
-        }
-        // Handle password-related errors
-        else if (error.toLowerCase().includes("password")) {
-          form.setError("password", {
-            type: "server",
-            message: error
-          });
-        }
-        // Generic registration error
-        else {
-          form.setError("root", {
-            type: "server",
-            message: error
-          });
-        }
-      }
     }
   }
+
+  // Use effect to update form errors when the error prop changes
+  React.useEffect(() => {
+    if (error) {
+      // Handle email-related errors (like email already in use)
+      if (error.toLowerCase().includes("email")) {
+        form.setError("email", {
+          type: "server",
+          message: error
+        });
+      }
+      // Handle password-related errors
+      else if (error.toLowerCase().includes("password")) {
+        form.setError("password", {
+          type: "server",
+          message: error
+        });
+      }
+      // Generic registration error
+      else {
+        form.setError("root", {
+          type: "server",
+          message: error
+        });
+      }
+    }
+  }, [error, form]);
 
   return (
     <Card className={cn("flex flex-col gap-6 w-sm", className)}>

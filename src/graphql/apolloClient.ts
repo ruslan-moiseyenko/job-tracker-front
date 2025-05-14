@@ -115,6 +115,13 @@ const errorLink = onError(
         // Skip refresh token for refresh token operations
         if (path.includes(refreshTokenPathName)) break;
 
+        // Skip auth-related operations (login/register) where auth errors are expected
+        const operationName = operation.operationName;
+        if (operationName === "Login" || operationName === "Register") {
+          // Let these errors propagate naturally - don't try to refresh token
+          continue;
+        }
+
         // Mark operation for refresh
         const { getContext, setContext } = operation;
         const context = getContext();
@@ -161,7 +168,7 @@ export const apolloClient = new ApolloClient({
       errorPolicy: "all"
     },
     mutate: {
-      errorPolicy: "all"
+      errorPolicy: "none"
     }
   }
 });

@@ -20,12 +20,18 @@ function LoginPage() {
 
   const handleSubmit = async ({ email, password }: ILoginInput) => {
     try {
-      setError(null); // Clear previous errors
+      setError(null);
       await login(email, password);
       navigate({ to: "/panel" });
     } catch (err) {
-      console.log("🚀 ~ LoginPage, handleSubmit ~ err:", err);
-      setError("Invalid email or password. Please try again.");
+      let errorMessage = "Invalid email or password.";
+
+      if (err instanceof Error) {
+        // Use the error message directly
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
     }
   };
 
