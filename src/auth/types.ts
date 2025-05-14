@@ -49,3 +49,10 @@ export interface ILoginInput {
 export interface IMeQueryResult {
   me: User | null;
 }
+
+export interface RefreshTokenResponse {
+  refreshToken: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}

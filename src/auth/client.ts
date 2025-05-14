@@ -83,7 +83,6 @@ export class Auth implements IAuthClient {
         variables: { email, password }
       });
 
-      console.log("🚀 ~ Auth ~ login ~ result.data:", result.data);
       if (result.data) {
         const { accessToken, refreshToken, user } = result.data.login;
 
