@@ -16,13 +16,13 @@
     /* Linting */
     "skipLibCheck": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false /* Disabled to allow unused variables with underscore prefix - ESLint will handle specific patterns */,
+    "noUnusedParameters": false /* Disabled to allow unused parameters with underscore prefix */,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
   }
 }
