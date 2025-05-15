@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,15 +11,25 @@ export default defineConfig({
   plugins: [
     TanStackRouterVite({ autoCodeSplitting: true }),
     viteReact(),
-    tailwindcss()
+    tailwindcss(),
+    sentryVitePlugin({
+      org: "moiseyenko",
+      project: "javascript-react"
+    })
   ],
+
   test: {
     globals: true,
     environment: "jsdom"
   },
+
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src")
     }
+  },
+
+  build: {
+    sourcemap: true
   }
 });

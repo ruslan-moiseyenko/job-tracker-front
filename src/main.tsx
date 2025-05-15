@@ -12,6 +12,20 @@ import { ApolloProvider } from "@apollo/client";
 import reportWebVitals from "./reportWebVitals.ts";
 import "./styles.css";
 
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+  integrations: [Sentry.browserTracingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+  tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/]
+});
+
 const auth = new Auth();
 // Only check auth if there's a token - prevents unnecessary GraphQL errors for non-logged-in users
 if (localStorage.getItem("access_token")) {
