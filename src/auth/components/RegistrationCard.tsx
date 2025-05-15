@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
 import type { IRegisterInput } from "@/auth/types";
+import { PasswordInput } from "@/components/common/PasswordInput";
 
 type RegistrationCardProps = PropsWithChildren &
   ComponentPropsWithoutRef<"div"> & {
@@ -181,7 +182,7 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Password" {...field} />
+                    <PasswordInput placeholder="Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

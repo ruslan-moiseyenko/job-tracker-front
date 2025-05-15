@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
 import type { ILoginInput } from "@/auth/types";
+import { PasswordInput } from "@/components/common/PasswordInput";
 
 type LoginCardProps = PropsWithChildren &
   ComponentPropsWithoutRef<"div"> & {
@@ -122,17 +123,6 @@ export const LoginCard: FC<LoginCardProps> = ({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {error && (
-              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
-                {error}
-              </div>
-            )}
-            {/* This is a fallback for form errors that might not be covered by the direct error display */}
-            {!error && form.formState.errors.root && (
-              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
-                {form.formState.errors.root.message}
-              </div>
-            )}
             <FormField
               control={form.control}
               name="email"
@@ -157,13 +147,24 @@ export const LoginCard: FC<LoginCardProps> = ({
                 <FormItem className="gap-4">
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="password" {...field} />
+                    <PasswordInput placeholder="password" {...field} />
                   </FormControl>
                   <ColoredNavLink to="/">Forgot password?</ColoredNavLink>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {error && (
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+                {error}
+              </div>
+            )}
+            {/* This is a fallback for form errors that might not be covered by the direct error display */}
+            {!error && form.formState.errors.root && (
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+                {form.formState.errors.root.message}
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

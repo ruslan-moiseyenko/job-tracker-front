@@ -1,5 +1,5 @@
 import { Route } from "@/routes/__root";
-import { Outlet } from "@tanstack/react-router";
+import { Link, Outlet } from "@tanstack/react-router";
 // import { Route as RootRoute } from "../../routes/__root";
 
 export function ProtectedLayout() {
@@ -14,10 +14,10 @@ export function ProtectedLayout() {
         <nav>
           <ul>
             <li>
-              <a href="/dashboard">Дашборд</a>
+              <Link to="/dashboard">Дашборд</Link>
             </li>
             <li>
-              <a href="/panel">Панель</a>
+              <Link to="/panel">Панель</Link>
             </li>
           </ul>
         </nav>

@@ -12,6 +12,7 @@ import type {
   User
 } from "@/auth/types";
 import { apolloClient, resetApolloCache } from "@/graphql/apolloClient";
+import { logger } from "@/lib/logger";
 import { type ApolloQueryResult } from "@apollo/client";
 
 export class Auth implements IAuthClient {
@@ -56,7 +57,7 @@ export class Auth implements IAuthClient {
         return true;
       }
     } catch (error) {
-      console.error("Authentication error: ", error);
+      logger.error("Authentication error: ", error);
       // Clear tokens if auth check fails due to invalid token
       if (
         error instanceof Error &&
@@ -141,7 +142,9 @@ export class Auth implements IAuthClient {
         await resetApolloCache();
       }
     } catch (error) {
-      console.error("Registration error: ", error);
+      // Import logger dynamically to avoid circular dependencies
+      const { logger } = await import("@/lib/logger");
+      logger.error("Registration error:", error);
       throw error;
     } finally {
       this.isLoading = false;
