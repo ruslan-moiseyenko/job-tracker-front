@@ -125,11 +125,6 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {form.formState.errors.root && (
-              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
-                {form.formState.errors.root.message}
-              </div>
-            )}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -188,6 +183,11 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
                 </FormItem>
               )}
             />
+            {form.formState.errors.root && (
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded-md">
+                {form.formState.errors.root.message}
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -155,13 +155,13 @@ export const LoginCard: FC<LoginCardProps> = ({
               )}
             />
             {error && (
-              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded-md">
                 {error}
               </div>
             )}
             {/* This is a fallback for form errors that might not be covered by the direct error display */}
             {!error && form.formState.errors.root && (
-              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded">
+              <div className="text-destructive text-sm p-2 border border-destructive/50 bg-destructive/10 rounded-md">
                 {form.formState.errors.root.message}
               </div>
             )}
