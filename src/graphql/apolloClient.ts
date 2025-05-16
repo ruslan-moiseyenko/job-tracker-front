@@ -22,7 +22,7 @@ let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
 // Only import and use createHttpLink in browser context
 if (isBrowser) {
   httpLink = createHttpLink({
-    uri: import.meta.env.VITE_GRAPHQL_API_URL,
+    uri: import.meta.env.VITE_GRAPHQL_API_URL + "/graphql",
     credentials: "include"
   });
 }
@@ -63,7 +63,7 @@ const refreshTokenPathName = "refreshToken";
 const createRefreshClient = () => {
   return new ApolloClient({
     link: createHttpLink({
-      uri: import.meta.env.VITE_GRAPHQL_API_URL,
+      uri: import.meta.env.VITE_GRAPHQL_API_URL + "/graphql",
       credentials: "include"
     }),
     cache: new InMemoryCache()
