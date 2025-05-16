@@ -89,7 +89,7 @@ export class Auth implements IAuthClient {
       // Check if there are GraphQL errors in the response
       if (result.errors && result.errors.length > 0) {
         const errorMessage = result.errors[0].message || "Login failed";
-        console.log("GraphQL error detected:", errorMessage);
+        logger.debug("GraphQL error detected:", errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -110,7 +110,7 @@ export class Auth implements IAuthClient {
         await resetApolloCache();
       }
     } catch (error) {
-      // console.log("🔍 Error caught in auth client login method:", error);
+      logger.debug("🔍 Error caught in auth client login method:", error);
 
       // Make sure we properly forward the GraphQL error
       this.isLoading = false;

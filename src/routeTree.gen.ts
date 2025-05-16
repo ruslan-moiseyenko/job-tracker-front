@@ -17,7 +17,6 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ProtectedPanelImport } from './routes/_protected/panel'
 import { Route as ProtectedDashboardImport } from './routes/_protected/dashboard'
 import { Route as AuthRegisterImport } from './routes/_auth/register'
-import { Route as AuthLoginWithMutationImport } from './routes/_auth/login-with-mutation'
 import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
@@ -53,12 +52,6 @@ const ProtectedDashboardRoute = ProtectedDashboardImport.update({
 const AuthRegisterRoute = AuthRegisterImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthLoginWithMutationRoute = AuthLoginWithMutationImport.update({
-  id: '/login-with-mutation',
-  path: '/login-with-mutation',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -100,13 +93,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof AuthRouteImport
     }
-    '/_auth/login-with-mutation': {
-      id: '/_auth/login-with-mutation'
-      path: '/login-with-mutation'
-      fullPath: '/login-with-mutation'
-      preLoaderRoute: typeof AuthLoginWithMutationImport
-      parentRoute: typeof AuthRouteImport
-    }
     '/_auth/register': {
       id: '/_auth/register'
       path: '/register'
@@ -135,13 +121,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
-  AuthLoginWithMutationRoute: typeof AuthLoginWithMutationRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
-  AuthLoginWithMutationRoute: AuthLoginWithMutationRoute,
   AuthRegisterRoute: AuthRegisterRoute,
 }
 
@@ -167,7 +151,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof ProtectedRouteRouteWithChildren
   '/login': typeof AuthLoginRoute
-  '/login-with-mutation': typeof AuthLoginWithMutationRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/panel': typeof ProtectedPanelRoute
@@ -177,7 +160,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof ProtectedRouteRouteWithChildren
   '/login': typeof AuthLoginRoute
-  '/login-with-mutation': typeof AuthLoginWithMutationRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/panel': typeof ProtectedPanelRoute
@@ -189,7 +171,6 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
-  '/_auth/login-with-mutation': typeof AuthLoginWithMutationRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/panel': typeof ProtectedPanelRoute
@@ -197,30 +178,15 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | ''
-    | '/login'
-    | '/login-with-mutation'
-    | '/register'
-    | '/dashboard'
-    | '/panel'
+  fullPaths: '/' | '' | '/login' | '/register' | '/dashboard' | '/panel'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | ''
-    | '/login'
-    | '/login-with-mutation'
-    | '/register'
-    | '/dashboard'
-    | '/panel'
+  to: '/' | '' | '/login' | '/register' | '/dashboard' | '/panel'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_protected'
     | '/_auth/login'
-    | '/_auth/login-with-mutation'
     | '/_auth/register'
     | '/_protected/dashboard'
     | '/_protected/panel'
@@ -261,7 +227,6 @@ export const routeTree = rootRoute
       "filePath": "_auth/route.tsx",
       "children": [
         "/_auth/login",
-        "/_auth/login-with-mutation",
         "/_auth/register"
       ]
     },
@@ -274,10 +239,6 @@ export const routeTree = rootRoute
     },
     "/_auth/login": {
       "filePath": "_auth/login.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/login-with-mutation": {
-      "filePath": "_auth/login-with-mutation.tsx",
       "parent": "/_auth"
     },
     "/_auth/register": {

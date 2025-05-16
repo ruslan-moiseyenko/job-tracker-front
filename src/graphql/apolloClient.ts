@@ -13,6 +13,7 @@ const isBrowser = typeof window !== "undefined";
 
 import { REFRESH_TOKEN } from "../auth/queries";
 import type { RefreshTokenResponse } from "@/auth/types";
+import { logger } from "@/lib/logger";
 
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
   forward ? forward(operation) : null
@@ -139,7 +140,7 @@ const errorLink = onError(
     }
 
     if (networkError) {
-      console.error("[Network error]:", networkError);
+      logger.error("[Network error]:", networkError);
     }
   }
 );

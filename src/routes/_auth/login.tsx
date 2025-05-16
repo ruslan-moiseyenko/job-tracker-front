@@ -25,7 +25,6 @@ function LoginPage() {
       navigate({ to: "/panel" });
     } catch (err) {
       let errorMessage = "Invalid email or password.";
-
       if (err instanceof Error) {
         // Use the error message directly
         errorMessage = err.message;
