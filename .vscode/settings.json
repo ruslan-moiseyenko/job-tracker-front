@@ -7,5 +7,6 @@
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
-  }
+  },
+  "svg.preview.background": "dark-transparent"
 }
