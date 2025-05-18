@@ -1,10 +1,11 @@
 import { LoginCard } from "@/auth/components/LoginCard";
+import type { OAuthProvider } from "@/auth/components/OAuthProviderButtons";
+import { GoogleIcon } from "@/auth/components/OAuthProviderIcons";
+import { useGoogleAuthPopup } from "@/auth/hooks/useGoogleAuthPopup";
 import type { ILoginInput } from "@/auth/types";
-import { logger } from "@/lib/logger";
+import { logger as sentryLogger } from "@sentry/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { GoogleIcon } from "@/auth/components/OAuthProviderIcons";
-import type { OAuthProvider } from "@/auth/components/OAuthProviderButtons";
 
 export const Route = createFileRoute("/_auth/login")({
   beforeLoad: ({ context }) => {
@@ -36,14 +37,28 @@ function LoginPage() {
       setError(errorMessage);
     }
   };
-  logger.info("LoginPage Base URL: ", import.meta.env.BASE_URL);
+
+  const onSuccess = async (tokens: {
+    accessToken: string;
+    refreshToken: string;
+  }) => {
+    localStorage.setItem("access_token", tokens.accessToken);
+    localStorage.setItem("refresh_token", tokens.refreshToken);
+
+    // Update auth state before navigation
+    await auth.checkAuth();
+
+    // Then navigate to panel
+    navigate({ to: "/panel" });
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onError = (err: any) => {
+    sentryLogger.error("❌ Auth error:", err);
+  };
 
   // OAuth provider handlers
-  const handleGoogleLogin = () => {
-    window.location.href = `${
-      import.meta.env.VITE_GRAPHQL_API_URL
-    }/auth/google`;
-  };
+  const handleGoogleLogin = useGoogleAuthPopup(onSuccess, onError);
 
   // Define available OAuth providers
   const oauthProviders: OAuthProvider[] = [

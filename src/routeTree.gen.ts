@@ -17,6 +17,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ProtectedPanelImport } from './routes/_protected/panel'
 import { Route as ProtectedDashboardImport } from './routes/_protected/dashboard'
 import { Route as AuthRegisterImport } from './routes/_auth/register'
+import { Route as AuthOauthRedirectImport } from './routes/_auth/oauth-redirect'
 import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
@@ -52,6 +53,12 @@ const ProtectedDashboardRoute = ProtectedDashboardImport.update({
 const AuthRegisterRoute = AuthRegisterImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthOauthRedirectRoute = AuthOauthRedirectImport.update({
+  id: '/oauth-redirect',
+  path: '/oauth-redirect',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -93,6 +100,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/oauth-redirect': {
+      id: '/_auth/oauth-redirect'
+      path: '/oauth-redirect'
+      fullPath: '/oauth-redirect'
+      preLoaderRoute: typeof AuthOauthRedirectImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/register': {
       id: '/_auth/register'
       path: '/register'
@@ -121,11 +135,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthOauthRedirectRoute: typeof AuthOauthRedirectRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
+  AuthOauthRedirectRoute: AuthOauthRedirectRoute,
   AuthRegisterRoute: AuthRegisterRoute,
 }
 
@@ -151,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof ProtectedRouteRouteWithChildren
   '/login': typeof AuthLoginRoute
+  '/oauth-redirect': typeof AuthOauthRedirectRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/panel': typeof ProtectedPanelRoute
@@ -160,6 +177,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof ProtectedRouteRouteWithChildren
   '/login': typeof AuthLoginRoute
+  '/oauth-redirect': typeof AuthOauthRedirectRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/panel': typeof ProtectedPanelRoute
@@ -171,6 +189,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/oauth-redirect': typeof AuthOauthRedirectRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/panel': typeof ProtectedPanelRoute
@@ -178,15 +197,30 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/register' | '/dashboard' | '/panel'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/oauth-redirect'
+    | '/register'
+    | '/dashboard'
+    | '/panel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/register' | '/dashboard' | '/panel'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/oauth-redirect'
+    | '/register'
+    | '/dashboard'
+    | '/panel'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_protected'
     | '/_auth/login'
+    | '/_auth/oauth-redirect'
     | '/_auth/register'
     | '/_protected/dashboard'
     | '/_protected/panel'
@@ -227,6 +261,7 @@ export const routeTree = rootRoute
       "filePath": "_auth/route.tsx",
       "children": [
         "/_auth/login",
+        "/_auth/oauth-redirect",
         "/_auth/register"
       ]
     },
@@ -239,6 +274,10 @@ export const routeTree = rootRoute
     },
     "/_auth/login": {
       "filePath": "_auth/login.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/oauth-redirect": {
+      "filePath": "_auth/oauth-redirect.tsx",
       "parent": "/_auth"
     },
     "/_auth/register": {
