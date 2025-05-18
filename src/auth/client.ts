@@ -11,7 +11,14 @@ import type {
   IRegistrationMutationResponse,
   User
 } from "@/auth/types";
-import { apolloClient, resetApolloCache } from "@/graphql/apolloClient";
+import {
+  apolloClient,
+  resetApolloCache,
+  terminateActiveQueries,
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  IS_LOGGED_OUT_KEY
+} from "@/graphql/apolloClient";
 import { logger } from "@/lib/logger";
 import { type ApolloQueryResult } from "@apollo/client";
 
@@ -21,10 +28,13 @@ export class Auth implements IAuthClient {
   isLoading: boolean = false;
   constructor() {
     // Load token from localStorage on initialization
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (token) {
       this.isAuthenticated = true;
     }
+
+    // Reset logged out flag on initialization
+    localStorage.removeItem(IS_LOGGED_OUT_KEY);
 
     // Bind methods to preserve 'this' context,
     // instead of using arrow functions
@@ -35,8 +45,11 @@ export class Auth implements IAuthClient {
   }
 
   async checkAuth(): Promise<boolean> {
-    // If no token exists, don't even try to check auth
-    if (!localStorage.getItem("access_token")) {
+    // If no token exists or user is logged out, don't even try to check auth
+    if (
+      !localStorage.getItem(ACCESS_TOKEN_KEY) ||
+      localStorage.getItem(IS_LOGGED_OUT_KEY) === "true"
+    ) {
       this.isAuthenticated = false;
       this.user = null;
       return false;
@@ -96,8 +109,12 @@ export class Auth implements IAuthClient {
       if (result.data) {
         const { accessToken, refreshToken, user } = result.data.login;
 
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
+        // Remove logged out flag when logging in
+        localStorage.removeItem(IS_LOGGED_OUT_KEY);
+
+        // Store tokens
+        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
         // Basic user data from login response
         this.user = {
@@ -132,8 +149,12 @@ export class Auth implements IAuthClient {
       if (result.data?.register) {
         const { accessToken, refreshToken, user } = result.data.register;
 
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
+        // Remove logged out flag when registering
+        localStorage.removeItem(IS_LOGGED_OUT_KEY);
+
+        // Store tokens
+        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
         this.user = user;
         this.isAuthenticated = true;
@@ -152,12 +173,31 @@ export class Auth implements IAuthClient {
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    // Set logout flag first to prevent token refresh attempts
+    localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
 
+    // Stop active queries to prevent errors
+    terminateActiveQueries();
+
+    // Remove tokens
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+
+    // Update auth state
     this.user = null;
     this.isAuthenticated = false;
 
+    // Reset Apollo cache after operations are stopped
     await resetApolloCache();
+
+    // Navigate to login page
+    // Using window.location for a full refresh to clear all apollo state
+    if (
+      window.location.pathname !== "/" &&
+      window.location.pathname !== "/login" &&
+      window.location.pathname !== "/register"
+    ) {
+      window.location.href = "/login";
+    }
   }
 }

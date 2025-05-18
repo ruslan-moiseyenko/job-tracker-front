@@ -15,6 +15,11 @@ import { REFRESH_TOKEN } from "../auth/queries";
 import type { RefreshTokenResponse } from "@/auth/types";
 import { logger } from "@/lib/logger";
 
+// Constants for localStorage keys
+export const ACCESS_TOKEN_KEY = "access_token";
+export const REFRESH_TOKEN_KEY = "refresh_token";
+export const IS_LOGGED_OUT_KEY = "apollo_logged_out";
+
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
   forward ? forward(operation) : null
 );
@@ -30,8 +35,10 @@ if (isBrowser) {
 // Helper function to handle logout
 const handleLogout = () => {
   if (isBrowser) {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+
     // Force reload to reset Apollo Client state
     if (
       window.location.pathname !== "/" &&
@@ -45,7 +52,7 @@ const handleLogout = () => {
 // Auth link middleware to add token to headers
 const authLink = setContext((_, { headers }) => {
   // Get the authentication token from local storage if it exists
-  const token = isBrowser ? localStorage.getItem("access_token") : null;
+  const token = isBrowser ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
 
   // Return the headers to the context so httpLink can read them
   return {
@@ -75,7 +82,15 @@ const createRefreshClient = () => {
  * This function is responsible for refreshing the access token using the refresh token
  */
 const refreshTokenRequest = async (): Promise<void> => {
-  const refreshToken = localStorage.getItem("refresh_token") || "";
+  // Check if user is logged out - if so, don't attempt refresh
+  if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
+    throw new Error("User is logged out");
+  }
+
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY) || "";
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
 
   try {
     // Use a separate client to avoid circular dependencies
@@ -91,8 +106,8 @@ const refreshTokenRequest = async (): Promise<void> => {
         response.data.refreshToken;
 
       // Update tokens in localStorage
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", newRefreshToken);
+      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
     } else {
       handleLogout();
     }
@@ -106,6 +121,11 @@ const refreshTokenRequest = async (): Promise<void> => {
 // Error link - detects UNAUTHENTICATED errors and marks operations for refresh
 const errorLink = onError(
   ({ graphQLErrors, networkError, operation, forward }) => {
+    // Check if user is logged out - if so, don't attempt refresh
+    if (isBrowser && localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
+      return;
+    }
+
     if (graphQLErrors) {
       for (const err of graphQLErrors) {
         const { path, extensions } = err;
@@ -173,6 +193,12 @@ export const apolloClient = new ApolloClient({
     }
   }
 });
+
+// Function to clean up Apollo state
+export const terminateActiveQueries = () => {
+  // Since queryManager is private in Apollo Client, we'll use the public API
+  apolloClient.stop(); // This stops all active queries
+};
 
 export const resetApolloCache = async () => {
   await apolloClient.resetStore();
