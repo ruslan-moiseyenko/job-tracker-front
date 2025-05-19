@@ -22,6 +22,11 @@ import {
 import { logger } from "@/lib/logger";
 import { type ApolloQueryResult } from "@apollo/client";
 
+// Factory function to create Auth instances
+export const createAuthInstance = (): Auth => {
+  return new Auth();
+};
+
 export class Auth implements IAuthClient {
   user: User | null = null;
   isAuthenticated: boolean = false;
