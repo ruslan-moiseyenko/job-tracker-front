@@ -6,11 +6,7 @@ import type { ILoginInput } from "@/auth/types";
 import { logger as sentryLogger } from "@sentry/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  ACCESS_TOKEN_KEY,
-  REFRESH_TOKEN_KEY,
-  IS_LOGGED_OUT_KEY
-} from "@/graphql/apolloClient";
+import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
 
 export const Route = createFileRoute("/_auth/login")({
   beforeLoad: ({ context }) => {
@@ -43,16 +39,9 @@ function LoginPage() {
     }
   };
 
-  const onSuccess = async (tokens: {
-    accessToken: string;
-    refreshToken: string;
-  }) => {
+  const onSuccess = async () => {
     // Remove logged out flag
     localStorage.removeItem(IS_LOGGED_OUT_KEY);
-
-    // Set tokens using constants
-    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
 
     // Update auth state before navigation
     await auth.checkAuth();

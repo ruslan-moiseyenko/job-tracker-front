@@ -1,7 +1,8 @@
 import {
   GET_ME_QUERY,
   LOGIN_MUTATION,
-  REGISTER_MUTATION
+  REGISTER_MUTATION,
+  LOGOUT_MUTATION
 } from "@/auth/queries";
 import type {
   IAuthClient,
@@ -15,8 +16,6 @@ import {
   apolloClient,
   resetApolloCache,
   terminateActiveQueries,
-  ACCESS_TOKEN_KEY,
-  REFRESH_TOKEN_KEY,
   IS_LOGGED_OUT_KEY
 } from "@/graphql/apolloClient";
 import { logger } from "@/lib/logger";
@@ -32,12 +31,6 @@ export class Auth implements IAuthClient {
   isAuthenticated: boolean = false;
   isLoading: boolean = false;
   constructor() {
-    // Load token from localStorage on initialization
-    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (token) {
-      this.isAuthenticated = true;
-    }
-
     // Reset logged out flag on initialization
     localStorage.removeItem(IS_LOGGED_OUT_KEY);
 
@@ -50,11 +43,8 @@ export class Auth implements IAuthClient {
   }
 
   async checkAuth(): Promise<boolean> {
-    // If no token exists or user is logged out, don't even try to check auth
-    if (
-      !localStorage.getItem(ACCESS_TOKEN_KEY) ||
-      localStorage.getItem(IS_LOGGED_OUT_KEY) === "true"
-    ) {
+    // If user is logged out, don't try to check auth
+    if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
       this.isAuthenticated = false;
       this.user = null;
       return false;
@@ -77,15 +67,7 @@ export class Auth implements IAuthClient {
     } catch (error) {
       logger.error("Authentication error: ", error);
       // Clear tokens if auth check fails due to invalid token
-      if (
-        error instanceof Error &&
-        (error.message.includes("logged in") ||
-          error.message.includes("unauthorized") ||
-          error.message.includes("token"))
-      ) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-      }
+      // No need to remove tokens from localStorage as they're now managed by cookies
     }
 
     this.user = null;
@@ -112,14 +94,10 @@ export class Auth implements IAuthClient {
       }
 
       if (result.data) {
-        const { accessToken, refreshToken, user } = result.data.login;
+        const { user } = result.data.login;
 
         // Remove logged out flag when logging in
         localStorage.removeItem(IS_LOGGED_OUT_KEY);
-
-        // Store tokens
-        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
         // Basic user data from login response
         this.user = {
@@ -152,14 +130,10 @@ export class Auth implements IAuthClient {
       });
 
       if (result.data?.register) {
-        const { accessToken, refreshToken, user } = result.data.register;
+        const { user } = result.data.register;
 
         // Remove logged out flag when registering
         localStorage.removeItem(IS_LOGGED_OUT_KEY);
-
-        // Store tokens
-        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
         this.user = user;
         this.isAuthenticated = true;
@@ -184,9 +158,15 @@ export class Auth implements IAuthClient {
     // Stop active queries to prevent errors
     terminateActiveQueries();
 
-    // Remove tokens
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    // Call logout endpoint to clear cookies on the server side
+    try {
+      await apolloClient.mutate({
+        mutation: LOGOUT_MUTATION
+      });
+    } catch (error) {
+      // If logout mutation fails, continue with client-side logout
+      logger.error("Logout mutation failed:", error);
+    }
 
     // Update auth state
     this.user = null;

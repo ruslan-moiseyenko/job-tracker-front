@@ -24,23 +24,22 @@ export interface IAuthClient {
 
 export interface ILoginMutationResponse {
   login: {
-    accessToken: string;
-    refreshToken: string;
     user: {
+      id: string;
       email: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
 }
 
 export interface IRegistrationMutationResponse {
   register: {
-    refreshToken: string;
-    accessToken: string;
     user: {
       id: string;
       email: string;
-      firstName: string;
-      lastName: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
 }
@@ -56,7 +55,6 @@ export interface IMeQueryResponse {
 
 export interface RefreshTokenResponse {
   refreshToken: {
-    accessToken: string;
-    refreshToken: string;
+    success: boolean;
   };
 }

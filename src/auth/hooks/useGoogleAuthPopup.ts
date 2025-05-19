@@ -1,18 +1,10 @@
-import { logger } from "@/lib/logger";
 import { useRef, useCallback } from "react";
-import {
-  ACCESS_TOKEN_KEY,
-  REFRESH_TOKEN_KEY,
-  IS_LOGGED_OUT_KEY
-} from "@/graphql/apolloClient";
-
-type TokenPayload = {
-  accessToken: string;
-  refreshToken: string;
-};
+import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
+import { apolloClient } from "@/graphql/apolloClient";
+import { GET_ME_QUERY } from "@/auth/queries";
 
 export function useGoogleAuthPopup(
-  onSuccess: (tokens: TokenPayload) => void,
+  onSuccess: () => void,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onError?: (err: any) => void
 ) {
@@ -53,11 +45,25 @@ export function useGoogleAuthPopup(
     function handleMessage(event: MessageEvent) {
       // Check if the event origin is the expected one
       if (!event.origin.includes(baseFrontUrl)) return;
-      const { type, payload, error } = event.data;
+      const { type, success, error } = event.data;
 
-      if (type === "OAUTH_CALLBACK") {
+      if (type === "OAUTH_CALLBACK" && success) {
         cleanup();
-        onSuccess(payload);
+        // Remove logged out flag
+        localStorage.removeItem(IS_LOGGED_OUT_KEY);
+
+        // Verify authentication with a query to the server
+        apolloClient
+          .query({
+            query: GET_ME_QUERY,
+            fetchPolicy: "network-only"
+          })
+          .then(() => {
+            onSuccess();
+          })
+          .catch((err) => {
+            onError?.(err);
+          });
       }
 
       if (type === "OAUTH_ERROR") {
@@ -68,22 +74,12 @@ export function useGoogleAuthPopup(
 
     window.addEventListener("message", handleMessage);
 
-    // Polling localStorage fallback twice a second
-    timerRef.current = window.setInterval(() => {
-      try {
-        const raw = localStorage.getItem(ACCESS_TOKEN_KEY);
-        const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
-        if (raw && refresh) {
-          cleanup();
-          // Clear tokens from localStorage after reading them
-          localStorage.removeItem(ACCESS_TOKEN_KEY);
-          localStorage.removeItem(REFRESH_TOKEN_KEY);
-          // Clear logged out flag when tokens are found
-          localStorage.removeItem(IS_LOGGED_OUT_KEY);
-          onSuccess({ accessToken: raw, refreshToken: refresh });
-        }
-      } catch {
-        logger.error("Error accessing localStorage");
+    // TODO: Check setInterval correctness
+    // Check if the popup is closed manually
+    const checkClosed = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(checkClosed);
+        cleanup();
       }
     }, 500);
   }, [onSuccess, onError]);

@@ -19,6 +19,7 @@ import { logger } from "@/lib/logger";
 export const ACCESS_TOKEN_KEY = "access_token";
 export const REFRESH_TOKEN_KEY = "refresh_token";
 export const IS_LOGGED_OUT_KEY = "apollo_logged_out";
+// TODO: check if is_logged-out is needed
 
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
   forward ? forward(operation) : null
@@ -35,8 +36,6 @@ if (isBrowser) {
 // Helper function to handle logout
 const handleLogout = () => {
   if (isBrowser) {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
 
     // Force reload to reset Apollo Client state
@@ -49,16 +48,12 @@ const handleLogout = () => {
   }
 };
 
-// Auth link middleware to add token to headers
 const authLink = setContext((_, { headers }) => {
-  // Get the authentication token from local storage if it exists
-  const token = isBrowser ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
-
-  // Return the headers to the context so httpLink can read them
+  // Return headers without manually adding authorization
+  //TODO: Check if this is needed
   return {
     headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : ""
+      ...headers
     }
   };
 });
@@ -87,28 +82,16 @@ const refreshTokenRequest = async (): Promise<void> => {
     throw new Error("User is logged out");
   }
 
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY) || "";
-  if (!refreshToken) {
-    throw new Error("No refresh token available");
-  }
-
   try {
     // Use a separate client to avoid circular dependencies
     const refreshClient = createRefreshClient();
 
+    // TODO: Check returning type
     const response = await refreshClient.mutate<RefreshTokenResponse>({
-      mutation: REFRESH_TOKEN,
-      variables: { refreshToken }
+      mutation: REFRESH_TOKEN
     });
 
-    if (response.data?.refreshToken) {
-      const { accessToken, refreshToken: newRefreshToken } =
-        response.data.refreshToken;
-
-      // Update tokens in localStorage
-      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
-    } else {
+    if (!response.data?.refreshToken.success) {
       handleLogout();
     }
   } catch (error) {
