@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-//TODO: Check refresh token mutation types
 export const REFRESH_TOKEN = gql`
   mutation refreshToken {
     refreshToken {

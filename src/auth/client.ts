@@ -30,6 +30,8 @@ export class Auth implements IAuthClient {
   user: User | null = null;
   isAuthenticated: boolean = false;
   isLoading: boolean = false;
+  private isAuthCheckInProgress = false;
+
   constructor() {
     // Reset logged out flag on initialization
     localStorage.removeItem(IS_LOGGED_OUT_KEY);
@@ -43,37 +45,85 @@ export class Auth implements IAuthClient {
   }
 
   async checkAuth(): Promise<boolean> {
-    // If user is logged out, don't try to check auth
-    if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
-      this.isAuthenticated = false;
-      this.user = null;
-      return false;
+    // If we're already authenticated, return immediately
+    if (this.isAuthenticated && this.user) {
+      return true;
     }
 
+    // If already checking auth, wait for the existing check
+    if (this.isAuthCheckInProgress) {
+      // Wait for the current check to complete
+      await new Promise<void>((resolve) => {
+        const checkStatus = () => {
+          if (!this.isAuthCheckInProgress) {
+            resolve();
+          } else {
+            setTimeout(checkStatus, 50);
+          }
+        };
+        checkStatus();
+      });
+
+      // Return the result after the check completes
+      return this.isAuthenticated;
+    }
+
+    // Start a new auth check
+    this.isAuthCheckInProgress = true;
     this.isLoading = true;
+
     try {
+      // Only skip if explicitly logged out
+      const isLoggedOut = localStorage.getItem(IS_LOGGED_OUT_KEY) === "true";
+      if (isLoggedOut) {
+        this.isAuthenticated = false;
+        this.user = null;
+        return false;
+      }
+
       const result: ApolloQueryResult<IMeQueryResponse> =
         await apolloClient.query({
           query: GET_ME_QUERY,
-          fetchPolicy: "network-only" // Always fetch the latest data, no caching
+          fetchPolicy: "network-only", // Always fetch the latest data, no caching
+          errorPolicy: "all" // Continue even if there are GraphQL errors
         });
 
       if (result.data?.me) {
         this.user = result.data.me;
         this.isAuthenticated = true;
-        this.isLoading = false;
+        // When successfully authenticated, remove the logged out flag if it exists
+        localStorage.removeItem(IS_LOGGED_OUT_KEY);
         return true;
+      } else {
+        this.isAuthenticated = false;
+        this.user = null;
+
+        if (result.errors) {
+          // Only set logged out flag if there were actual auth errors
+          const hasAuthErrors = result.errors.some(
+            (error) => error.extensions?.code === "UNAUTHENTICATED"
+          );
+
+          if (hasAuthErrors) {
+            localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+          }
+        }
+
+        return false;
       }
     } catch (error) {
-      logger.error("Authentication error: ", error);
-      // Clear tokens if auth check fails due to invalid token
-      // No need to remove tokens from localStorage as they're now managed by cookies
+      logger.error("Auth.checkAuth: Authentication error: ", error);
+      this.isAuthenticated = false;
+      this.user = null;
+      // Only set the logged out flag for auth errors
+      if (error && typeof error === "object" && "networkError" in error) {
+        localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+      }
+      return false;
+    } finally {
+      this.isLoading = false;
+      this.isAuthCheckInProgress = false;
     }
-
-    this.user = null;
-    this.isAuthenticated = false;
-    this.isLoading = false;
-    return false;
   }
 
   async login(email: string, password: string): Promise<void> {

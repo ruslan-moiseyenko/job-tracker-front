@@ -7,11 +7,45 @@ import { logger as sentryLogger } from "@sentry/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
+import { logger } from "@/lib/logger";
 
 export const Route = createFileRoute("/_auth/login")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: async ({ context }) => {
+    // If already authenticated, redirect directly
     if (context.auth.isAuthenticated) {
       throw redirect({ to: "/panel" });
+    }
+
+    // If auth check is still in progress, wait for it
+    if (context.auth.isLoading) {
+      await new Promise<void>((resolve) => {
+        const checkAuthStatus = () => {
+          if (!context.auth.isLoading) {
+            resolve();
+          } else {
+            setTimeout(checkAuthStatus, 50);
+          }
+        };
+        checkAuthStatus();
+      });
+
+      // After loading finished, redirect if authenticated
+      if (context.auth.isAuthenticated) {
+        throw redirect({ to: "/panel" });
+      }
+    }
+
+    // If we're not explicitly logged out, try a fresh auth check
+    if (localStorage.getItem(IS_LOGGED_OUT_KEY) !== "true") {
+      logger.info(
+        "Login route: Not explicitly logged out, checking auth again"
+      );
+      await context.auth.checkAuth();
+
+      // After this final check, redirect if authenticated
+      if (context.auth.isAuthenticated) {
+        throw redirect({ to: "/panel" });
+      }
     }
   },
   component: LoginPage
@@ -26,6 +60,8 @@ function LoginPage() {
   const handleSubmit = async ({ email, password }: ILoginInput) => {
     try {
       setError(null);
+      // Clear the logged out flag when user actively tries to log in
+      localStorage.removeItem(IS_LOGGED_OUT_KEY);
       await login(email, password);
       navigate({ to: "/panel" });
     } catch (err) {
