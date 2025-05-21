@@ -1,3 +1,7 @@
+import {
+  BROADCAST_CHANNEL_MESSAGE,
+  BROADCAST_CHANNEL_NAME
+} from "@/routes/_auth/login";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -10,24 +14,20 @@ function OAuthRedirect() {
     const params = new URLSearchParams(window.location.search);
     const success = params.get("success");
 
-    // TODO: Check params and if we need to check success
     if (!success) return;
 
     try {
-      if (window.opener) {
-        // ?? For better security instead of "*" the exact origin should be used
-        const targetOrigin = window.location.origin || "*";
-        window.opener.postMessage(
-          {
-            type: "OAUTH_CALLBACK",
-            success: true
-          },
-          targetOrigin
-        );
-      }
-      // Cookies are handled by the server, no need to store tokens
-    } catch (e) {
-      console.error("OAuth redirect error", e);
+      const channel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+      channel.postMessage({ type: BROADCAST_CHANNEL_MESSAGE, success: true });
+      channel.close();
+
+      document.body.innerHTML =
+        "<h1>Authentication successful! You can close this window and return to the application.</h1>";
+    } catch (error) {
+      console.error("BroadcastChannel failed:", error);
+      // Fall back to localStorage approach
+      localStorage.setItem("oauth_status", "success");
+      localStorage.setItem("oauth_timestamp", Date.now().toString());
     }
 
     window.close();

@@ -5,7 +5,7 @@ import { useGoogleAuthPopup } from "@/auth/hooks/useGoogleAuthPopup";
 import type { ILoginInput } from "@/auth/types";
 import { logger as sentryLogger } from "@sentry/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
 import { logger } from "@/lib/logger";
 
@@ -51,11 +51,43 @@ export const Route = createFileRoute("/_auth/login")({
   component: LoginPage
 });
 
+export const BROADCAST_CHANNEL_NAME = "oauth_channel";
+export const BROADCAST_CHANNEL_MESSAGE = "oauth_complete";
+
 function LoginPage() {
   const { auth } = Route.useRouteContext();
   const { isLoading, login } = auth;
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let channel: any;
+
+    try {
+      channel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+      channel.onmessage = (event: any) => {
+        if (
+          event.data.type === BROADCAST_CHANNEL_MESSAGE &&
+          event.data.success
+        ) {
+          // Verify authentication with server and navigate
+          auth.checkAuth().then((isAuthenticated) => {
+            if (isAuthenticated) {
+              navigate({ to: "/panel" });
+            }
+          });
+        }
+      };
+    } catch (error) {
+      logger.error("BroadcastChannel not supported:", error);
+    }
+
+    return () => {
+      if (channel) {
+        channel.close();
+      }
+    };
+  }, []);
 
   const handleSubmit = async ({ email, password }: ILoginInput) => {
     try {
@@ -86,7 +118,6 @@ function LoginPage() {
     navigate({ to: "/panel" });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onError = (err: any) => {
     sentryLogger.error("❌ Auth error:", err);
   };
