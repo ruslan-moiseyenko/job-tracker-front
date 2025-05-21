@@ -5,13 +5,8 @@ import { createAuthInstance } from "./auth/client.ts";
 // Create auth instance
 const auth = createAuthInstance();
 
-// Only check auth if there's a token - prevents unnecessary GraphQL errors for non-logged-in users
-if (
-  typeof localStorage !== "undefined" &&
-  localStorage.getItem("access_token")
-) {
-  auth.checkAuth().catch(console.error);
-}
+// We'll initialize auth check in the root route component instead of here
+// to ensure it's properly handled with loading states
 
 // Create a new router instance
 export const router = createRouter({

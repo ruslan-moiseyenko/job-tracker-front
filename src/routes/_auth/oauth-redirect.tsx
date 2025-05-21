@@ -8,29 +8,26 @@ export const Route = createFileRoute("/_auth/oauth-redirect")({
 function OAuthRedirect() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const raw = params.get("tokens");
+    const success = params.get("success");
 
-    if (!raw) return;
+    // TODO: Check params and if we need to check success
+    if (!success) return;
 
     try {
-      const tokens = JSON.parse(decodeURIComponent(raw));
-
       if (window.opener) {
         // ?? For better security instead of "*" the exact origin should be used
         const targetOrigin = window.location.origin || "*";
         window.opener.postMessage(
           {
             type: "OAUTH_CALLBACK",
-            payload: tokens
+            success: true
           },
           targetOrigin
         );
-      } else {
-        localStorage.setItem("access_token", tokens.accessToken);
-        localStorage.setItem("refresh_token", tokens.refreshToken);
       }
+      // Cookies are handled by the server, no need to store tokens
     } catch (e) {
-      console.error("Token parsing error", e);
+      console.error("OAuth redirect error", e);
     }
 
     window.close();
