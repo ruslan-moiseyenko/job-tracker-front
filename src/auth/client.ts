@@ -1,9 +1,9 @@
 import {
   GET_ME_QUERY,
   LOGIN_MUTATION,
-  REGISTER_MUTATION,
-  LOGOUT_MUTATION
-} from "@/auth/queries";
+  LOGOUT_MUTATION,
+  REGISTER_MUTATION
+} from '@/auth/queries';
 import type {
   IAuthClient,
   ILoginMutationResponse,
@@ -11,15 +11,16 @@ import type {
   IRegisterInput,
   IRegistrationMutationResponse,
   User
-} from "@/auth/types";
+} from '@/auth/types';
 import {
   apolloClient,
+  IS_LOGGED_OUT_KEY,
   resetApolloCache,
-  terminateActiveQueries,
-  IS_LOGGED_OUT_KEY
-} from "@/graphql/apolloClient";
-import { logger } from "@/lib/logger";
-import { type ApolloQueryResult } from "@apollo/client";
+  terminateActiveQueries
+} from '@/graphql/apolloClient';
+import { type ApolloQueryResult } from '@apollo/client';
+
+import { logger } from '@/lib/logger';
 
 // Factory function to create Auth instances
 export const createAuthInstance = (): Auth => {
@@ -74,7 +75,7 @@ export class Auth implements IAuthClient {
 
     try {
       // Only skip if explicitly logged out
-      const isLoggedOut = localStorage.getItem(IS_LOGGED_OUT_KEY) === "true";
+      const isLoggedOut = localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true';
       if (isLoggedOut) {
         this.isAuthenticated = false;
         this.user = null;
@@ -84,8 +85,8 @@ export class Auth implements IAuthClient {
       const result: ApolloQueryResult<IMeQueryResponse> =
         await apolloClient.query({
           query: GET_ME_QUERY,
-          fetchPolicy: "network-only", // Always fetch the latest data, no caching
-          errorPolicy: "all" // Continue even if there are GraphQL errors
+          fetchPolicy: 'network-only', // Always fetch the latest data, no caching
+          errorPolicy: 'all' // Continue even if there are GraphQL errors
         });
 
       if (result.data?.me) {
@@ -101,23 +102,23 @@ export class Auth implements IAuthClient {
         if (result.errors) {
           // Only set logged out flag if there were actual auth errors
           const hasAuthErrors = result.errors.some(
-            (error) => error.extensions?.code === "UNAUTHENTICATED"
+            (error) => error.extensions?.code === 'UNAUTHENTICATED'
           );
 
           if (hasAuthErrors) {
-            localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+            localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
           }
         }
 
         return false;
       }
     } catch (error) {
-      logger.error("Auth.checkAuth: Authentication error: ", error);
+      logger.error('Auth.checkAuth: Authentication error: ', error);
       this.isAuthenticated = false;
       this.user = null;
       // Only set the logged out flag for auth errors
-      if (error && typeof error === "object" && "networkError" in error) {
-        localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+      if (error && typeof error === 'object' && 'networkError' in error) {
+        localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
       }
       return false;
     } finally {
@@ -133,13 +134,13 @@ export class Auth implements IAuthClient {
       const result = await apolloClient.mutate<ILoginMutationResponse>({
         mutation: LOGIN_MUTATION,
         variables: { email, password },
-        errorPolicy: "none"
+        errorPolicy: 'none'
       });
 
       // Check if there are GraphQL errors in the response
       if (result.errors && result.errors.length > 0) {
-        const errorMessage = result.errors[0].message || "Login failed";
-        logger.debug("GraphQL error detected:", errorMessage);
+        const errorMessage = result.errors[0].message || 'Login failed';
+        logger.debug('GraphQL error detected:', errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -151,8 +152,8 @@ export class Auth implements IAuthClient {
 
         // Basic user data from login response
         this.user = {
-          id: "", // We'll get the full user data on next page load
-          email: user?.email || ""
+          id: '', // We'll get the full user data on next page load
+          email: user?.email || ''
         };
         this.isAuthenticated = true;
 
@@ -160,7 +161,7 @@ export class Auth implements IAuthClient {
         await resetApolloCache();
       }
     } catch (error) {
-      logger.debug("🔍 Error caught in auth client login method:", error);
+      logger.debug('🔍 Error caught in auth client login method:', error);
 
       // Make sure we properly forward the GraphQL error
       this.isLoading = false;
@@ -193,8 +194,8 @@ export class Auth implements IAuthClient {
       }
     } catch (error) {
       // Import logger dynamically to avoid circular dependencies
-      const { logger } = await import("@/lib/logger");
-      logger.error("Registration error:", error);
+      const { logger } = await import('@/lib/logger');
+      logger.error('Registration error:', error);
       throw error;
     } finally {
       this.isLoading = false;
@@ -203,7 +204,7 @@ export class Auth implements IAuthClient {
 
   async logout(): Promise<void> {
     // Set logout flag first to prevent token refresh attempts
-    localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+    localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
 
     // Stop active queries to prevent errors
     terminateActiveQueries();
@@ -215,7 +216,7 @@ export class Auth implements IAuthClient {
       });
     } catch (error) {
       // If logout mutation fails, continue with client-side logout
-      logger.error("Logout mutation failed:", error);
+      logger.error('Logout mutation failed:', error);
     }
 
     // Update auth state
@@ -228,11 +229,11 @@ export class Auth implements IAuthClient {
     // Navigate to login page
     // Using window.location for a full refresh to clear all apollo state
     if (
-      window.location.pathname !== "/" &&
-      window.location.pathname !== "/login" &&
-      window.location.pathname !== "/register"
+      window.location.pathname !== '/' &&
+      window.location.pathname !== '/login' &&
+      window.location.pathname !== '/register'
     ) {
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
   }
 }

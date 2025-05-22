@@ -1,21 +1,15 @@
-import { ColoredNavLink } from "@/components/common/ColoredNavLink";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import React from 'react';
+import type { ComponentPropsWithoutRef, FC, PropsWithChildren } from 'react';
 
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import type { ILoginInput } from '@/auth/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { ColoredNavLink } from '@/components/common/ColoredNavLink';
+import { PasswordInput } from '@/components/common/PasswordInput';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -23,17 +17,26 @@ import {
   CardFooter,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
-import type { ILoginInput } from "@/auth/types";
-import { PasswordInput } from "@/components/common/PasswordInput";
+} from '@/components/ui/card';
 import {
-  OAuthProviderButtons,
-  type OAuthProvider
-} from "./OAuthProviderButtons";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+import { cn } from '@/lib/utils';
+
+import {
+  type OAuthProvider,
+  OAuthProviderButtons
+} from './OAuthProviderButtons';
 
 type LoginCardProps = PropsWithChildren &
-  ComponentPropsWithoutRef<"div"> & {
+  ComponentPropsWithoutRef<'div'> & {
     isLoading: boolean;
     error?: string | null;
     handleSubmit: ({ email, password }: ILoginInput) => Promise<void>;
@@ -45,10 +48,10 @@ const formSchema = z.object({
   password: z
     .string()
     .min(6, {
-      message: "Password must be at least 6 characters."
+      message: 'Password must be at least 6 characters.'
     })
     .max(20, {
-      message: "Come on! 20 characters is more then enough!"
+      message: 'Come on! 20 characters is more then enough!'
     })
     .refine(
       (val) => {
@@ -56,7 +59,7 @@ const formSchema = z.object({
       },
       {
         message:
-          "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+          'Password must contain at least one uppercase letter, one lowercase letter, and one number.'
       }
     )
 });
@@ -71,8 +74,8 @@ export const LoginCard: FC<LoginCardProps> = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: ""
+      email: '',
+      password: ''
     }
   });
 
@@ -91,24 +94,24 @@ export const LoginCard: FC<LoginCardProps> = ({
   React.useEffect(() => {
     if (error) {
       // Always set the root error for visibility
-      form.setError("root", {
-        type: "server",
+      form.setError('root', {
+        type: 'server',
         message: error
       });
 
       // Additionally set field-specific errors for validation styling
       if (
-        error.toLowerCase().includes("password") ||
-        error.toLowerCase().includes("invalid") ||
-        error.toLowerCase().includes("credentials")
+        error.toLowerCase().includes('password') ||
+        error.toLowerCase().includes('invalid') ||
+        error.toLowerCase().includes('credentials')
       ) {
-        form.setError("password", {
-          type: "server",
+        form.setError('password', {
+          type: 'server',
           message: error
         });
-      } else if (error.toLowerCase().includes("email")) {
-        form.setError("email", {
-          type: "server",
+      } else if (error.toLowerCase().includes('email')) {
+        form.setError('email', {
+          type: 'server',
           message: error
         });
       }
@@ -119,7 +122,7 @@ export const LoginCard: FC<LoginCardProps> = ({
   }, [error, form]);
 
   return (
-    <Card className={cn("flex flex-col gap-6 w-sm", className)}>
+    <Card className={cn('flex flex-col gap-6 w-sm', className)}>
       <CardHeader>
         <CardTitle>Login to JobTracker</CardTitle>
         <CardDescription>
@@ -175,7 +178,7 @@ export const LoginCard: FC<LoginCardProps> = ({
               {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
 
             {/* Render OAuth provider buttons if available */}

@@ -1,30 +1,32 @@
+import { useEffect, useState } from 'react';
+
 import {
   BROADCAST_CHANNEL_MESSAGE,
   BROADCAST_CHANNEL_NAME
-} from "@/routes/_auth/login";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useLoadingContext } from "@/components/ui/LoadingContext";
+} from '@/routes/_auth/login';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/_auth/oauth-redirect")({
+import { useLoadingContext } from '@/components/ui/LoadingContext';
+
+export const Route = createFileRoute('/_auth/oauth-redirect')({
   component: OAuthRedirect
 });
 
 function OAuthRedirect() {
   const { showLoading, hideLoading, updateMessage } = useLoadingContext();
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    'loading'
   );
 
   useEffect(() => {
-    showLoading("Completing authentication...");
+    showLoading('Completing authentication...');
 
     const params = new URLSearchParams(window.location.search);
-    const success = params.get("success");
+    const success = params.get('success');
 
     if (!success) {
-      setStatus("error");
-      updateMessage("Authentication failed");
+      setStatus('error');
+      updateMessage('Authentication failed');
       setTimeout(() => {
         hideLoading();
       }, 500);
@@ -36,16 +38,16 @@ function OAuthRedirect() {
       channel.postMessage({ type: BROADCAST_CHANNEL_MESSAGE, success: true });
       channel.close();
 
-      setStatus("success");
-      updateMessage("Authentication successful!");
+      setStatus('success');
+      updateMessage('Authentication successful!');
     } catch (error) {
-      console.error("BroadcastChannel failed:", error);
+      console.error('BroadcastChannel failed:', error);
       // Fall back to localStorage approach
-      localStorage.setItem("oauth_status", "success");
-      localStorage.setItem("oauth_timestamp", Date.now().toString());
+      localStorage.setItem('oauth_status', 'success');
+      localStorage.setItem('oauth_timestamp', Date.now().toString());
 
-      setStatus("success");
-      updateMessage("Authentication successful!");
+      setStatus('success');
+      updateMessage('Authentication successful!');
     }
 
     // Show success message for a moment before closing
@@ -59,7 +61,7 @@ function OAuthRedirect() {
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center">
-      {status === "success" && (
+      {status === 'success' && (
         <div className="text-center p-6">
           <h1 className="text-2xl font-bold mb-2">
             Authentication successful!
@@ -68,7 +70,7 @@ function OAuthRedirect() {
         </div>
       )}
 
-      {status === "error" && (
+      {status === 'error' && (
         <div className="text-center p-6">
           <h1 className="text-2xl font-bold text-red-500 mb-2">
             Authentication failed

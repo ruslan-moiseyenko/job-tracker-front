@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
-import { useLoadingContext } from "@/components/ui/LoadingContext";
+import { useCallback, useState } from 'react';
+
+import { useLoadingContext } from '@/components/ui/LoadingContext';
 
 interface UseApiLoadingOptions {
   useGlobalLoader?: boolean;
@@ -30,9 +31,9 @@ export function useApiLoading<T = any>(
 ): UseApiLoadingReturn<T> {
   const {
     useGlobalLoader = false,
-    initialMessage = "Loading...",
-    successMessage = "Success!",
-    errorMessage = "An error occurred",
+    initialMessage = 'Loading...',
+    successMessage = 'Success!',
+    errorMessage = 'An error occurred',
     showSuccessState = false,
     successStateDuration = 1000
   } = options || {};

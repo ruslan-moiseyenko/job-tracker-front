@@ -1,12 +1,13 @@
-import { createAuthInstance, type Auth } from "@/auth/client";
 import {
   createContext,
-  useEffect,
-  useState,
-  type PropsWithChildren,
   type FC,
-  useContext
-} from "react";
+  type PropsWithChildren,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
+
+import { type Auth, createAuthInstance } from '@/auth/client';
 
 export const AuthContext = createContext<{
   auth: Auth;
@@ -24,26 +25,26 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     const initialize = async () => {
       // If we're on a public route and explicitly logged out, skip auth check
       const isPublicRoute =
-        window.location.pathname === "/login" ||
-        window.location.pathname === "/register" ||
-        window.location.pathname === "/";
+        window.location.pathname === '/login' ||
+        window.location.pathname === '/register' ||
+        window.location.pathname === '/';
 
       if (
-        localStorage.getItem("apollo_logged_out") === "true" &&
+        localStorage.getItem('apollo_logged_out') === 'true' &&
         isPublicRoute
       ) {
         console.log(
-          "User is on public route and logged out, skipping auth check"
+          'User is on public route and logged out, skipping auth check'
         );
         setIsReady(true);
         return;
       }
 
       // For protected routes or if not explicitly logged out, always check auth
-      console.log("AuthProvider: Checking authentication...");
+      console.log('AuthProvider: Checking authentication...');
       await auth.checkAuth();
       console.log(
-        "AuthProvider: Auth check completed, authenticated:",
+        'AuthProvider: Auth check completed, authenticated:',
         auth.isAuthenticated
       );
       setIsReady(true);

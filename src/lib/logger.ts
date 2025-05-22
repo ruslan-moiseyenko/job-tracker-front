@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * A centralized logger that handles different environments appropriately
  */
 
-type LogLevel = "debug" | "info" | "warn" | "error";
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LoggerOptions {
   // Allow sending logs to an external service in production
@@ -17,28 +16,28 @@ class Logger {
    * Debug level logging - only shown in development
    */
   debug(message: string, ...args: any[]): void {
-    this.log("debug", message, ...args);
+    this.log('debug', message, ...args);
   }
 
   /**
    * Info level logging - only shown in development
    */
   info(message: string, ...args: any[]): void {
-    this.log("info", message, ...args);
+    this.log('info', message, ...args);
   }
 
   /**
    * Warning level logging
    */
   warn(message: string, ...args: any[]): void {
-    this.log("warn", message, ...args);
+    this.log('warn', message, ...args);
   }
 
   /**
    * Error level logging
    */
   error(message: string, ...args: any[]): void {
-    this.log("error", message, ...args);
+    this.log('error', message, ...args);
   }
 
   /**
@@ -52,12 +51,12 @@ class Logger {
     const isProd = import.meta.env.PROD;
 
     // In production, only show warnings and errors
-    if (isProd && (level === "debug" || level === "info")) {
+    if (isProd && (level === 'debug' || level === 'info')) {
       return;
     }
 
     // In production, we might want to send errors to a monitoring service
-    if (isProd && level === "error") {
+    if (isProd && level === 'error') {
       // Here you would integrate with services like Sentry, LogRocket, etc.
       // this.sendToErrorService(message, args);
     }
@@ -65,16 +64,16 @@ class Logger {
     // In development, use console with proper log level
     if (!isProd) {
       switch (level) {
-        case "debug":
+        case 'debug':
           console.debug(`[DEBUG] ${message}`, ...args);
           break;
-        case "info":
+        case 'info':
           console.info(`[INFO] ${message}`, ...args);
           break;
-        case "warn":
+        case 'warn':
           console.warn(`[WARN] ${message}`, ...args);
           break;
-        case "error":
+        case 'error':
           console.error(`[ERROR] ${message}`, ...args);
           break;
       }

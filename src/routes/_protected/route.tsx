@@ -1,7 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { ProtectedLayout } from "../../components/layouts/ProtectedLayout";
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/_protected")({
+import { ProtectedLayout } from '../../components/layouts/ProtectedLayout';
+
+export const Route = createFileRoute('/_protected')({
   beforeLoad: async ({ context, location }) => {
     // First check if auth loading is already complete
     if (context.auth.isLoading) {
@@ -21,14 +22,14 @@ export const Route = createFileRoute("/_protected")({
     // If not authenticated after loading is complete, redirect to login
     if (!context.auth.isAuthenticated) {
       // Ensure we don't have a stale IS_LOGGED_OUT_KEY value
-      if (localStorage.getItem("apollo_logged_out") !== "true") {
+      if (localStorage.getItem('apollo_logged_out') !== 'true') {
         // If not explicitly logged out, try one more auth check
         await context.auth.checkAuth();
 
         // If still not authenticated, then redirect
         if (!context.auth.isAuthenticated) {
           throw redirect({
-            to: "/login",
+            to: '/login',
             search: {
               redirect: location.pathname
             }
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/_protected")({
         }
       } else {
         throw redirect({
-          to: "/login",
+          to: '/login',
           search: {
             redirect: location.pathname
           }

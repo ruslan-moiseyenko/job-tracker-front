@@ -1,31 +1,54 @@
-import { Route } from "@/routes/__root";
-import { Link, Outlet } from "@tanstack/react-router";
+import { Outlet } from '@tanstack/react-router';
+
+import { AppSidebar } from '@/components/app-sidebar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger
+} from '@/components/ui/sidebar';
+
+// import { Route } from "@/routes/__root";
 // import { Route as RootRoute } from "../../routes/__root";
 
 export function ProtectedLayout() {
-  const { auth } = Route.useRouteContext();
+  // const { auth } = Route.useRouteContext();
 
   return (
-    <div className="auth-layout">
-      <header>
-        <div className="user-info">
-          {auth.user && <span>Привет, {auth.user.firstName}!</span>}
-        </div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/dashboard">Дашборд</Link>
-            </li>
-            <li>
-              <Link to="/panel">Панель</Link>
-            </li>
-          </ul>
-        </nav>
-        <button onClick={() => auth.logout()}>Выйти</button>
-      </header>
-      <main>
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            {/* <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Building Your Application
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb> */}
+          </div>
+        </header>
+        <main>
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

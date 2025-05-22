@@ -1,24 +1,25 @@
+import type { RefreshTokenResponse } from '@/auth/types';
 import {
   ApolloClient,
-  InMemoryCache,
   createHttpLink,
-  from
-} from "@apollo/client/core";
-import { setContext } from "@apollo/client/link/context";
-import { onError } from "@apollo/client/link/error";
-import { ApolloLink } from "@apollo/client/core";
+  from,
+  InMemoryCache
+} from '@apollo/client/core';
+import { ApolloLink } from '@apollo/client/core';
+import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+
+import { logger } from '@/lib/logger';
+
+import { REFRESH_TOKEN } from '../auth/queries';
 
 // Check if we're running in a browser environment
-const isBrowser = typeof window !== "undefined";
-
-import { REFRESH_TOKEN } from "../auth/queries";
-import type { RefreshTokenResponse } from "@/auth/types";
-import { logger } from "@/lib/logger";
+const isBrowser = typeof window !== 'undefined';
 
 // Constants for localStorage keys
-export const ACCESS_TOKEN_KEY = "access_token";
-export const REFRESH_TOKEN_KEY = "refresh_token";
-export const IS_LOGGED_OUT_KEY = "apollo_logged_out";
+export const ACCESS_TOKEN_KEY = 'access_token';
+export const REFRESH_TOKEN_KEY = 'refresh_token';
+export const IS_LOGGED_OUT_KEY = 'apollo_logged_out';
 // TODO: check if is_logged-out is needed
 
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
@@ -28,8 +29,8 @@ let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
 // Only import and use createHttpLink in browser context
 if (isBrowser) {
   httpLink = createHttpLink({
-    uri: import.meta.env.VITE_GRAPHQL_API_URL + "/graphql",
-    credentials: "include"
+    uri: import.meta.env.VITE_GRAPHQL_API_URL + '/graphql',
+    credentials: 'include'
   });
 }
 
@@ -38,9 +39,9 @@ if (isBrowser) {
 // to make the flow more explicit and avoid missed redirects
 const _handleLogout = () => {
   if (isBrowser) {
-    localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+    localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
     // Force reload to reset Apollo Client state
-    window.location.href = "/login";
+    window.location.href = '/login';
   }
 };
 
@@ -55,14 +56,14 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // Define the refresh token path name to identify refresh token operations
-const refreshTokenPathName = "refreshToken";
+const refreshTokenPathName = 'refreshToken';
 
 // Create a temporary Apollo client to handle token refresh without circular dependencies
 const createRefreshClient = () => {
   return new ApolloClient({
     link: createHttpLink({
-      uri: import.meta.env.VITE_GRAPHQL_API_URL + "/graphql",
-      credentials: "include"
+      uri: import.meta.env.VITE_GRAPHQL_API_URL + '/graphql',
+      credentials: 'include'
     }),
     cache: new InMemoryCache()
   });
@@ -74,8 +75,8 @@ const createRefreshClient = () => {
  */
 const refreshTokenRequest = async (): Promise<boolean> => {
   // Check if user is logged out - if so, don't attempt refresh
-  if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
-    console.log("User is logged out, skipping refresh token request");
+  if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
+    console.log('User is logged out, skipping refresh token request');
     return false;
   }
 
@@ -85,13 +86,13 @@ const refreshTokenRequest = async (): Promise<boolean> => {
 
     const response = await refreshClient.mutate<RefreshTokenResponse>({
       mutation: REFRESH_TOKEN,
-      errorPolicy: "all" // Continue even if there are GraphQL errors
+      errorPolicy: 'all' // Continue even if there are GraphQL errors
     });
 
     // Check if the response contains data and was successful
     if (!response.data?.refreshToken.success) {
-      console.error("[Refresh Token Failed]: Success flag is false");
-      localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+      console.error('[Refresh Token Failed]: Success flag is false');
+      localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
 
       // Instead of redirecting (causing page reload),
       // timeout is set to allow other operations to complete first
@@ -100,11 +101,11 @@ const refreshTokenRequest = async (): Promise<boolean> => {
         setTimeout(() => {
           // Only redirect if we're not already on the login page
           if (
-            window.location.pathname !== "/login" &&
-            window.location.pathname !== "/register" &&
-            window.location.pathname !== "/"
+            window.location.pathname !== '/login' &&
+            window.location.pathname !== '/register' &&
+            window.location.pathname !== '/'
           ) {
-            window.location.href = "/login";
+            window.location.href = '/login';
           }
         }, 100);
       }
@@ -114,19 +115,19 @@ const refreshTokenRequest = async (): Promise<boolean> => {
 
     return true;
   } catch (error) {
-    console.error("[Refresh Token Error]:", error);
+    console.error('[Refresh Token Error]:', error);
     // Set the logged out flag to prevent further refresh attempts
-    localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+    localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
 
     // Same delayed redirect approach as above
     if (isBrowser) {
       setTimeout(() => {
         if (
-          window.location.pathname !== "/login" &&
-          window.location.pathname !== "/register" &&
-          window.location.pathname !== "/"
+          window.location.pathname !== '/login' &&
+          window.location.pathname !== '/register' &&
+          window.location.pathname !== '/'
         ) {
-          window.location.href = "/login";
+          window.location.href = '/login';
         }
       }, 100);
     }
@@ -139,15 +140,15 @@ const refreshTokenRequest = async (): Promise<boolean> => {
 const errorLink = onError(
   ({ graphQLErrors, networkError, operation, forward }) => {
     // Check if user is already logged out - if so, don't process errors
-    if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
+    if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
       // If on a protected route, redirect to login
       if (
         isBrowser &&
-        window.location.pathname !== "/" &&
-        window.location.pathname !== "/login" &&
-        window.location.pathname !== "/register"
+        window.location.pathname !== '/' &&
+        window.location.pathname !== '/login' &&
+        window.location.pathname !== '/register'
       ) {
-        window.location.href = "/login";
+        window.location.href = '/login';
       }
       return;
     }
@@ -157,22 +158,22 @@ const errorLink = onError(
         const { path, extensions } = err;
 
         // Check if the error is an authentication error
-        if (extensions?.code !== "UNAUTHENTICATED" || !path) continue;
+        if (extensions?.code !== 'UNAUTHENTICATED' || !path) continue;
 
         // Skip refresh token for refresh token operations to avoid loops
         if (path.includes(refreshTokenPathName)) {
           // If refreshToken operation itself fails with UNAUTHENTICATED, we should logout
-          console.error("Refresh token operation failed with UNAUTHENTICATED");
-          localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+          console.error('Refresh token operation failed with UNAUTHENTICATED');
+          localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
           if (isBrowser) {
-            window.location.href = "/login";
+            window.location.href = '/login';
           }
           return;
         }
 
         // Skip auth-related operations (login/register) where auth errors are expected
         const operationName = operation.operationName;
-        if (operationName === "Login" || operationName === "Register") {
+        if (operationName === 'Login' || operationName === 'Register') {
           continue;
         }
 
@@ -182,10 +183,10 @@ const errorLink = onError(
 
         if (context._retryAttempt) {
           // Prevent infinite retry loops
-          console.error("Retry loop detected. Aborting.");
-          localStorage.setItem(IS_LOGGED_OUT_KEY, "true");
+          console.error('Retry loop detected. Aborting.');
+          localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
           if (isBrowser) {
-            window.location.href = "/login";
+            window.location.href = '/login';
           }
           return;
         }
@@ -204,7 +205,7 @@ const errorLink = onError(
     }
 
     if (networkError) {
-      logger.error("[Network error]:", networkError);
+      logger.error('[Network error]:', networkError);
     }
   }
 );
@@ -212,7 +213,7 @@ const errorLink = onError(
 // Refresh token link - checks for _needsRefresh flag and refreshes token
 const refreshLink = setContext(async (_, previousContext) => {
   // Check if user is already logged out - if so, don't attempt refresh
-  if (localStorage.getItem(IS_LOGGED_OUT_KEY) === "true") {
+  if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
     return previousContext;
   }
 
@@ -244,15 +245,15 @@ export const apolloClient = new ApolloClient({
   connectToDevTools: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-and-network",
-      errorPolicy: "all"
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all'
     },
     query: {
-      fetchPolicy: "network-only",
-      errorPolicy: "all"
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all'
     },
     mutate: {
-      errorPolicy: "none"
+      errorPolicy: 'none'
     }
   }
 });

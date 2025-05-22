@@ -1,8 +1,10 @@
-import { createPortal } from "react-dom";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from 'react';
 
-export type LoadingVariant = "spinner" | "dots" | "pulse";
+import { createPortal } from 'react-dom';
+
+import { cn } from '@/lib/utils';
+
+export type LoadingVariant = 'spinner' | 'dots' | 'pulse';
 
 interface LoadingOverlayProps {
   isLoading: boolean;
@@ -15,8 +17,8 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({
   isLoading,
-  message = "Loading...",
-  variant = "spinner",
+  message = 'Loading...',
+  variant = 'spinner',
   overlayClassName,
   contentClassName,
   fullScreen = true
@@ -51,29 +53,29 @@ export function LoadingOverlay({
   return createPortal(
     <div
       className={cn(
-        "fixed z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-200",
-        fullScreen ? "inset-0" : "inset-[1px]",
+        'fixed z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-200',
+        fullScreen ? 'inset-0' : 'inset-[1px]',
         overlayClassName
       )}
     >
       <div
         className={cn(
-          "flex flex-col items-center gap-4 p-6 rounded-lg bg-card shadow-lg animate-in fade-in-50 duration-300",
+          'flex flex-col items-center gap-4 p-6 rounded-lg bg-card shadow-lg animate-in fade-in-50 duration-300',
           contentClassName
         )}
       >
         {/* Loading indicator based on variant */}
-        {variant === "spinner" && (
+        {variant === 'spinner' && (
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         )}
-        {variant === "dots" && (
+        {variant === 'dots' && (
           <div className="flex space-x-2">
             <div className="h-3 w-3 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
             <div className="h-3 w-3 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
             <div className="h-3 w-3 rounded-full bg-primary animate-bounce" />
           </div>
         )}
-        {variant === "pulse" && (
+        {variant === 'pulse' && (
           <div className="h-12 w-12 rounded-full bg-primary/30 relative flex items-center justify-center">
             <div className="h-12 w-12 rounded-full bg-primary/70 animate-ping absolute" />
             <div className="h-6 w-6 rounded-full bg-primary" />

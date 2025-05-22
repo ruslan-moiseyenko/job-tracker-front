@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC } from 'react';
 
 interface ErrorPageProps {
   status?: string;
@@ -8,9 +8,9 @@ interface ErrorPageProps {
 }
 
 export const ErrorPage: FC<ErrorPageProps> = ({
-  status = "Error",
-  title = "Oops!",
-  message = "Something went wrong.",
+  status = 'Error',
+  title = 'Oops!',
+  message = 'Something went wrong.',
   stack
 }) => {
   return (

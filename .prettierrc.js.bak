@@ -1,6 +1,6 @@
 // Prettier configuration for import sorting
 
-export default {
+module.exports = {
   semi: true,
   singleQuote: true,
   tabWidth: 2,
@@ -8,8 +8,10 @@ export default {
   printWidth: 80,
   plugins: ['@trivago/prettier-plugin-sort-imports'],
   importOrder: [
-    '^react', 
-    '^@?\\w',
+    '^react$',
+    '^react-dom$',
+    '^react(-dom)?/(.*)$',
+    '<THIRD_PARTY_MODULES>',
     '^@/components/(.*)$',
     '^@/hooks/(.*)$',
     '^@/lib/(.*)$',
