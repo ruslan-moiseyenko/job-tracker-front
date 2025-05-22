@@ -1,11 +1,9 @@
+import { logger } from "@/lib/logger";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
-    // Make sure auth is not already explicitly logged out
     const isLoggedOut = localStorage.getItem("apollo_logged_out") === "true";
-
-    // First check if auth loading is already complete or in progress
     if (
       context.auth.isLoading ||
       (!context.auth.isAuthenticated && !isLoggedOut)
@@ -25,17 +23,17 @@ export const Route = createFileRoute("/")({
       // If not authenticated yet and not explicitly logged out,
       // try one more explicit auth check
       if (!context.auth.isAuthenticated && !isLoggedOut) {
-        console.log("Index route: Trying one explicit auth check");
+        logger.info("Index route: Trying one explicit auth check");
         await context.auth.checkAuth();
       }
     }
 
-    // Now make the routing decision based on authenticated status
+    // The routing decision based on authenticated status
     if (context.auth.isAuthenticated) {
-      console.log("Index route: User is authenticated, redirecting to panel");
+      logger.info("Index route: User is authenticated, redirecting to panel");
       throw redirect({ to: "/panel" });
     } else {
-      console.log(
+      logger.info(
         "Index route: User is not authenticated, redirecting to login"
       );
       throw redirect({ to: "/login" });
