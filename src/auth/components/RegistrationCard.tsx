@@ -1,21 +1,15 @@
-import { ColoredNavLink } from "@/components/common/ColoredNavLink";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import React from 'react';
+import type { ComponentPropsWithoutRef, FC, PropsWithChildren } from 'react';
 
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import type { IRegisterInput } from '@/auth/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { ColoredNavLink } from '@/components/common/ColoredNavLink';
+import { PasswordInput } from '@/components/common/PasswordInput';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -23,13 +17,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import type { PropsWithChildren, FC, ComponentPropsWithoutRef } from "react";
-import type { IRegisterInput } from "@/auth/types";
-import { PasswordInput } from "@/components/common/PasswordInput";
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+import { cn } from '@/lib/utils';
 
 type RegistrationCardProps = PropsWithChildren &
-  ComponentPropsWithoutRef<"div"> & {
+  ComponentPropsWithoutRef<'div'> & {
     isLoading: boolean;
     error?: string | null;
     handleSubmit: (data: IRegisterInput) => Promise<void>;
@@ -42,10 +44,10 @@ const formSchema = z.object({
   password: z
     .string()
     .min(6, {
-      message: "Password must be at least 6 characters."
+      message: 'Password must be at least 6 characters.'
     })
     .max(20, {
-      message: "Come on! 20 characters is more then enough!"
+      message: 'Come on! 20 characters is more then enough!'
     })
     .refine(
       (val) => {
@@ -53,7 +55,7 @@ const formSchema = z.object({
       },
       {
         message:
-          "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+          'Password must contain at least one uppercase letter, one lowercase letter, and one number.'
       }
     )
 });
@@ -67,10 +69,10 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: ""
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: ''
     }
   });
 
@@ -83,7 +85,7 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
         lastName: values.lastName
       });
     } catch (err) {
-      console.error("Registration failed:", err);
+      console.error('Registration failed:', err);
     }
   }
 
@@ -91,23 +93,23 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
   React.useEffect(() => {
     if (error) {
       // Handle email-related errors (like email already in use)
-      if (error.toLowerCase().includes("email")) {
-        form.setError("email", {
-          type: "server",
+      if (error.toLowerCase().includes('email')) {
+        form.setError('email', {
+          type: 'server',
           message: error
         });
       }
       // Handle password-related errors
-      else if (error.toLowerCase().includes("password")) {
-        form.setError("password", {
-          type: "server",
+      else if (error.toLowerCase().includes('password')) {
+        form.setError('password', {
+          type: 'server',
           message: error
         });
       }
       // Generic registration error
       else {
-        form.setError("root", {
-          type: "server",
+        form.setError('root', {
+          type: 'server',
           message: error
         });
       }
@@ -115,7 +117,7 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
   }, [error, form]);
 
   return (
-    <Card className={cn("flex flex-col gap-6 w-sm", className)}>
+    <Card className={cn('flex flex-col gap-6 w-sm', className)}>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>
@@ -192,7 +194,7 @@ export const RegistrationCard: FC<RegistrationCardProps> = ({
               {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
-              {isLoading ? "Creating Account..." : "Register"}
+              {isLoading ? 'Creating Account...' : 'Register'}
             </Button>
           </form>
         </Form>

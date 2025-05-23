@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@apollo/client";
-import { GET_ME_QUERY } from "@/auth/queries";
-import type { IMeQueryResponse } from "@/auth/types";
+import { GET_ME_QUERY } from '@/auth/queries';
+import type { IMeQueryResponse } from '@/auth/types';
+import { useQuery } from '@apollo/client';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/_protected/panel")({
+export const Route = createFileRoute('/_protected/panel')({
   component: PanelPage
 });
 
@@ -24,7 +24,7 @@ function PanelPage() {
           <h2>Ваши данные:</h2>
           <p>ID: {data.me.id}</p>
           <p>Email: {data.me.email}</p>
-          <p>Имя: {data.me.firstName + " " + data.me.lastName}</p>
+          <p>Имя: {data.me.firstName + ' ' + data.me.lastName}</p>
         </div>
       )}
     </div>

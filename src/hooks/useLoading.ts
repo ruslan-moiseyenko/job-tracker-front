@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from 'react';
 
 interface UseLoadingReturn {
   isLoading: boolean;
@@ -11,7 +11,7 @@ interface UseLoadingReturn {
 /**
  * Hook for managing loading state with messages
  */
-export function useLoading(initialMessage = "Loading..."): UseLoadingReturn {
+export function useLoading(initialMessage = 'Loading...'): UseLoadingReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(initialMessage);
 

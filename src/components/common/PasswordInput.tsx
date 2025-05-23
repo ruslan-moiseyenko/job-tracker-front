@@ -1,7 +1,9 @@
-import React, { useState, type InputHTMLAttributes } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
+import React, { type InputHTMLAttributes, useState } from 'react';
+
+import { Eye, EyeOff } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface PasswordInputProps extends InputHTMLAttributes<HTMLInputElement> {}
@@ -17,7 +19,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
     return (
       <div className={`relative ${className}`}>
         <Input
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           className="pr-10"
           ref={ref}
           {...props}
@@ -36,7 +38,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
             <Eye className="h-4 w-4 text-gray-400" />
           )}
           <span className="sr-only">
-            {showPassword ? "Show password" : "Hide password"}
+            {showPassword ? 'Show password' : 'Hide password'}
           </span>
         </Button>
       </div>
@@ -44,6 +46,6 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
   }
 );
 
-PasswordInput.displayName = "PasswordInput";
+PasswordInput.displayName = 'PasswordInput';
 
 export { PasswordInput };

@@ -1,6 +1,7 @@
-import { createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen.ts";
-import { createAuthInstance } from "./auth/client.ts";
+import { createRouter } from '@tanstack/react-router';
+
+import { createAuthInstance } from './auth/client.ts';
+import { routeTree } from './routeTree.gen.ts';
 
 // Create auth instance
 const auth = createAuthInstance();
@@ -11,7 +12,7 @@ const auth = createAuthInstance();
 // Create a new router instance
 export const router = createRouter({
   routeTree,
-  defaultPreload: "intent",
+  defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
@@ -21,7 +22,7 @@ export const router = createRouter({
 });
 
 // Register the router instance for type safety
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
   }

@@ -1,9 +1,10 @@
-import { ThemeProvider } from "@/components/common/ThemeProvider.tsx";
-import { LoadingProvider } from "@/components/ui/LoadingContext";
-import { apolloClient } from "@/graphql/apolloClient.ts";
-import { router } from "@/router";
-import { ApolloProvider } from "@apollo/client";
-import { RouterProvider } from "@tanstack/react-router";
+import { apolloClient } from '@/graphql/apolloClient.ts';
+import { router } from '@/router';
+import { ApolloProvider } from '@apollo/client';
+import { RouterProvider } from '@tanstack/react-router';
+
+import { ThemeProvider } from '@/components/common/ThemeProvider.tsx';
+import { LoadingProvider } from '@/components/ui/LoadingContext';
 
 export function App() {
   return (

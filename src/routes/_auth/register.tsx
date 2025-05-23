@@ -1,13 +1,14 @@
-import { RegistrationCard } from "@/auth/components/RegistrationCard";
-import type { IRegisterInput } from "@/auth/types";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ApolloError } from "@apollo/client";
+import { useState } from 'react';
 
-export const Route = createFileRoute("/_auth/register")({
+import { RegistrationCard } from '@/auth/components/RegistrationCard';
+import type { IRegisterInput } from '@/auth/types';
+import { ApolloError } from '@apollo/client';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+
+export const Route = createFileRoute('/_auth/register')({
   beforeLoad: ({ context }) => {
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: "/panel" });
+      throw redirect({ to: '/dashboard' });
     }
   },
   component: RegisterPage
@@ -23,11 +24,11 @@ function RegisterPage() {
     try {
       setError(null); // Clear previous errors
       await auth.register(data);
-      navigate({ to: "/panel" });
+      navigate({ to: '/dashboard' });
     } catch (err) {
       // Extract the actual error message from the GraphQL error
       let errorMessage =
-        "Registration failed. Please check your information and try again.";
+        'Registration failed. Please check your information and try again.';
       if (err instanceof ApolloError) {
         // Get message from GraphQL error if available
         if (err.graphQLErrors && err.graphQLErrors.length > 0) {

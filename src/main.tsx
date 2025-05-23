@@ -1,10 +1,12 @@
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import { App } from "./App";
-import reportWebVitals from "./reportWebVitals.ts";
-import "./styles.css";
+import { StrictMode } from 'react';
 
-import * as Sentry from "@sentry/react";
+import ReactDOM from 'react-dom/client';
+
+import * as Sentry from '@sentry/react';
+
+import { App } from './App';
+import reportWebVitals from './reportWebVitals.ts';
+import './styles.css';
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -15,11 +17,11 @@ Sentry.init({
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/]
+  tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/]
 });
 
 // Render the app
-const rootElement = document.getElementById("app");
+const rootElement = document.getElementById('app');
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(

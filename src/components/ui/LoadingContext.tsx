@@ -1,12 +1,13 @@
-import React, {
+import {
   createContext,
-  useContext,
-  useState,
   type ReactNode,
-  useCallback
-} from "react";
-import { LoadingOverlay } from "./LoadingOverlay";
-import type { LoadingVariant } from "./LoadingOverlay";
+  useCallback,
+  useContext,
+  useState
+} from 'react';
+
+import type { LoadingVariant } from './LoadingOverlay';
+import { LoadingOverlay } from './LoadingOverlay';
 
 interface LoadingContextType {
   showLoading: (message?: string, variant?: LoadingVariant) => void;
@@ -28,8 +29,8 @@ interface LoadingProviderProps {
 
 export function LoadingProvider({
   children,
-  defaultVariant = "spinner",
-  defaultMessage = "Loading..."
+  defaultVariant = 'spinner',
+  defaultMessage = 'Loading...'
 }: LoadingProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(defaultMessage);
@@ -90,7 +91,7 @@ export function LoadingProvider({
 export function useLoadingContext() {
   const context = useContext(LoadingContext);
   if (context === undefined) {
-    throw new Error("useLoadingContext must be used within a LoadingProvider");
+    throw new Error('useLoadingContext must be used within a LoadingProvider');
   }
   return context;
 }

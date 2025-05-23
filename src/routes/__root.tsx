@@ -1,9 +1,10 @@
-import type { IAuthClient } from "@/auth/types";
-import { ErrorPage } from "@/components/common/ErrorPage";
-import { logger } from "@/lib/logger";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+
+import type { IAuthClient } from '@/auth/types';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+
+import { ErrorPage } from '@/components/common/ErrorPage';
 
 interface IRouterContext {
   auth: IAuthClient;
@@ -14,11 +15,11 @@ export const Route = createRootRouteWithContext<IRouterContext>()({
     // Always clear the logged out flag on root initialization unless explicitly on login page
     // This allows tokens to be checked on app launch/reload
     const explicitlyOnLoginPage =
-      window.location.pathname === "/login" ||
-      window.location.pathname === "/register";
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register';
 
     if (!explicitlyOnLoginPage) {
-      localStorage.removeItem("apollo_logged_out");
+      localStorage.removeItem('apollo_logged_out');
     }
 
     // The protected routes and index route will handle their own auth checks
@@ -26,7 +27,7 @@ export const Route = createRootRouteWithContext<IRouterContext>()({
     try {
       await context.auth.checkAuth();
     } catch (error) {
-      console.error("Error during root auth check:", error);
+      console.error('Error during root auth check:', error);
     }
   },
 
@@ -53,7 +54,7 @@ export const Route = createRootRouteWithContext<IRouterContext>()({
     return (
       <>
         <Outlet />
-        <TanStackRouterDevtools />
+        <TanStackRouterDevtools position="bottom-right" />
       </>
     );
   },

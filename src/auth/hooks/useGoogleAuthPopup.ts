@@ -1,11 +1,12 @@
-import { useRef, useCallback } from "react";
-import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
-import { apolloClient } from "@/graphql/apolloClient";
-import { GET_ME_QUERY } from "@/auth/queries";
+import { useCallback, useRef } from 'react';
+
+import { GET_ME_QUERY } from '@/auth/queries';
+import { IS_LOGGED_OUT_KEY } from '@/graphql/apolloClient';
+import { apolloClient } from '@/graphql/apolloClient';
 
 export function useGoogleAuthPopup(
   onSuccess: () => void,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   onError?: (err: any) => void
 ) {
   const popupRef = useRef<Window | null>(null);
@@ -17,24 +18,24 @@ export function useGoogleAuthPopup(
     const left = window.screenX + (window.innerWidth - width) / 2;
     const top = window.screenY + (window.innerHeight - height) / 2;
     const baseBackendUrl =
-      import.meta.env.VITE_GRAPHQL_API_URL || "http://localhost:4000";
+      import.meta.env.VITE_GRAPHQL_API_URL || 'http://localhost:4000';
     const baseFrontUrl =
       import.meta.env.VITE_FRONTEND_URL || window.location.origin;
     const url = `${baseBackendUrl}/auth/google`;
 
     const popup = window.open(
       url,
-      "_blank",
+      '_blank',
       `width=${width},height=${height},left=${left},top=${top}`
     );
 
     if (!popup) {
-      onError?.(new Error("Popup blocked"));
+      onError?.(new Error('Popup blocked'));
       return;
     }
 
     function cleanup() {
-      window.removeEventListener("message", handleMessage);
+      window.removeEventListener('message', handleMessage);
       if (timerRef.current) clearInterval(timerRef.current);
       popup?.close();
     }
@@ -47,7 +48,7 @@ export function useGoogleAuthPopup(
       if (!event.origin.includes(baseFrontUrl)) return;
       const { type, success, error } = event.data;
 
-      if (type === "OAUTH_CALLBACK" && success) {
+      if (type === 'OAUTH_CALLBACK' && success) {
         cleanup();
         // Remove logged out flag
         localStorage.removeItem(IS_LOGGED_OUT_KEY);
@@ -56,7 +57,7 @@ export function useGoogleAuthPopup(
         apolloClient
           .query({
             query: GET_ME_QUERY,
-            fetchPolicy: "network-only"
+            fetchPolicy: 'network-only'
           })
           .then(() => {
             onSuccess();
@@ -66,13 +67,13 @@ export function useGoogleAuthPopup(
           });
       }
 
-      if (type === "OAUTH_ERROR") {
+      if (type === 'OAUTH_ERROR') {
         cleanup();
         onError?.(error);
       }
     }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage);
 
     // TODO: Check setInterval correctness
     // Check if the popup is closed manually

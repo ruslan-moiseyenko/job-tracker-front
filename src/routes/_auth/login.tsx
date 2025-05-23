@@ -1,19 +1,21 @@
-import { LoginCard } from "@/auth/components/LoginCard";
-import type { OAuthProvider } from "@/auth/components/OAuthProviderButtons";
-import { GoogleIcon } from "@/auth/components/OAuthProviderIcons";
-import { useGoogleAuthPopup } from "@/auth/hooks/useGoogleAuthPopup";
-import type { ILoginInput } from "@/auth/types";
-import { logger as sentryLogger } from "@sentry/react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { IS_LOGGED_OUT_KEY } from "@/graphql/apolloClient";
-import { logger } from "@/lib/logger";
+import { useEffect, useState } from 'react';
 
-export const Route = createFileRoute("/_auth/login")({
+import { LoginCard } from '@/auth/components/LoginCard';
+import type { OAuthProvider } from '@/auth/components/OAuthProviderButtons';
+import { GoogleIcon } from '@/auth/components/OAuthProviderIcons';
+import { useGoogleAuthPopup } from '@/auth/hooks/useGoogleAuthPopup';
+import type { ILoginInput } from '@/auth/types';
+import { IS_LOGGED_OUT_KEY } from '@/graphql/apolloClient';
+import { logger as sentryLogger } from '@sentry/react';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+
+import { logger } from '@/lib/logger';
+
+export const Route = createFileRoute('/_auth/login')({
   beforeLoad: async ({ context }) => {
     // If already authenticated, redirect directly
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: "/panel" });
+      throw redirect({ to: '/dashboard' });
     }
 
     // If auth check is still in progress, wait for it
@@ -31,28 +33,28 @@ export const Route = createFileRoute("/_auth/login")({
 
       // After loading finished, redirect if authenticated
       if (context.auth.isAuthenticated) {
-        throw redirect({ to: "/panel" });
+        throw redirect({ to: '/dashboard' });
       }
     }
 
     // If we're not explicitly logged out, try a fresh auth check
-    if (localStorage.getItem(IS_LOGGED_OUT_KEY) !== "true") {
+    if (localStorage.getItem(IS_LOGGED_OUT_KEY) !== 'true') {
       logger.info(
-        "Login route: Not explicitly logged out, checking auth again"
+        'Login route: Not explicitly logged out, checking auth again'
       );
       await context.auth.checkAuth();
 
       // After this final check, redirect if authenticated
       if (context.auth.isAuthenticated) {
-        throw redirect({ to: "/panel" });
+        throw redirect({ to: '/dashboard' });
       }
     }
   },
   component: LoginPage
 });
 
-export const BROADCAST_CHANNEL_NAME = "oauth_channel";
-export const BROADCAST_CHANNEL_MESSAGE = "oauth_complete";
+export const BROADCAST_CHANNEL_NAME = 'oauth_channel';
+export const BROADCAST_CHANNEL_MESSAGE = 'oauth_complete';
 
 function LoginPage() {
   const { auth } = Route.useRouteContext();
@@ -73,13 +75,13 @@ function LoginPage() {
           // Verify authentication with server and navigate
           auth.checkAuth().then((isAuthenticated) => {
             if (isAuthenticated) {
-              navigate({ to: "/panel" });
+              navigate({ to: '/dashboard' });
             }
           });
         }
       };
     } catch (error) {
-      logger.error("BroadcastChannel not supported:", error);
+      logger.error('BroadcastChannel not supported:', error);
     }
 
     return () => {
@@ -95,9 +97,9 @@ function LoginPage() {
       // Clear the logged out flag when user actively tries to log in
       localStorage.removeItem(IS_LOGGED_OUT_KEY);
       await login(email, password);
-      navigate({ to: "/panel" });
+      navigate({ to: '/dashboard' });
     } catch (err) {
-      let errorMessage = "Invalid email or password.";
+      let errorMessage = 'Invalid email or password.';
       if (err instanceof Error) {
         // Use the error message directly
         errorMessage = err.message;
@@ -115,11 +117,11 @@ function LoginPage() {
     await auth.checkAuth();
 
     // Then navigate to panel
-    navigate({ to: "/panel" });
+    navigate({ to: '/dashboard' });
   };
 
   const onError = (err: any) => {
-    sentryLogger.error("❌ Auth error:", err);
+    sentryLogger.error('❌ Auth error:', err);
   };
 
   // OAuth provider handlers
@@ -128,8 +130,8 @@ function LoginPage() {
   // Define available OAuth providers
   const oauthProviders: OAuthProvider[] = [
     {
-      id: "google",
-      name: "Google",
+      id: 'google',
+      name: 'Google',
       icon: <GoogleIcon />,
       handleLogin: handleGoogleLogin
     }
