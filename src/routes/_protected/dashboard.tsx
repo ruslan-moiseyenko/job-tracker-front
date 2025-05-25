@@ -1,3 +1,4 @@
+import { DataTable } from '@/dashboard/components/DataTable';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_protected/dashboard')({
@@ -5,10 +6,5 @@ export const Route = createFileRoute('/_protected/dashboard')({
 });
 
 function DashboardPage() {
-  return (
-    <div>
-      <h1>Дашборд</h1>
-      <p>Здесь находится дашборд приложения с важной информацией.</p>
-    </div>
-  );
+  return <DataTable />;
 }
