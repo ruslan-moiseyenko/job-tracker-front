@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import type { IAuthClient } from '@/auth/types';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+
+import type { IAuthClient } from '@/auth/types';
 
 import { ErrorPage } from '@/components/common/ErrorPage';
 

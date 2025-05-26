@@ -1,4 +1,3 @@
-import type { RefreshTokenResponse } from '@/auth/types';
 import {
   ApolloClient,
   createHttpLink,
@@ -8,6 +7,8 @@ import {
 import { ApolloLink } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+
+import type { RefreshTokenResponse } from '@/auth/types';
 
 import { logger } from '@/lib/logger';
 

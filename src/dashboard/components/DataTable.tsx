@@ -1,8 +1,5 @@
 import * as React from 'react';
 
-import { applicationColumns } from '@/dashboard/components/dataColumns';
-import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
-import { fakeApplicationData } from '@/dashboard/components/fakeData';
 import {
   type ColumnFiltersState,
   flexRender,
@@ -14,6 +11,11 @@ import {
   useReactTable,
   type VisibilityState
 } from '@tanstack/react-table';
+
+import { useUserData } from '@/auth/hooks/userDataHook';
+import { applicationColumns } from '@/dashboard/components/dataColumns';
+import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
+import { fakeApplicationData } from '@/dashboard/components/fakeData';
 import { ChevronDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -41,6 +43,15 @@ export function DataTable() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  // const { userData } = useUserData();
+
+  // React.useEffect(() => {
+  //   if (userData) {
+  //     console.log('User data in DataTable component:', userData);
+  //     // Here you can use the userData for anything else you need
+  //   }
+  // }, [userData]);
+
   const table = useReactTable({
     data: fakeApplicationData,
     columns: applicationColumns,
@@ -62,17 +73,17 @@ export function DataTable() {
 
   return (
     <div className="w-full">
+      {/* Optional: Display user information if needed */}
+      {/* {userData && (
+        <div className="bg-accent/20 p-4 mb-4 rounded-md">
+          <h3 className="font-medium mb-1">Current User</h3>
+          <p className="text-sm">
+            Name: {userData.firstName} {userData.lastName}
+          </p>
+          <p className="text-sm">Email: {userData.email}</p>
+        </div>
+      )} */}
       <div className="flex items-center py-4 px-4">
-        {/* <Input
-          placeholder="Filter companies..."
-          value={
-            (table.getColumn('companyName')?.getFilterValue() as string) ?? ''
-          }
-          onChange={(event) =>
-            table.getColumn('companyName')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        /> */}
         <DataTableToolbar table={table} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

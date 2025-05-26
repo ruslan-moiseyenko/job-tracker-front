@@ -1,8 +1,9 @@
 import React from 'react';
 import type { ComponentPropsWithoutRef, FC, PropsWithChildren } from 'react';
 
-import type { ILoginInput } from '@/auth/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+import type { ILoginInput } from '@/auth/types';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';

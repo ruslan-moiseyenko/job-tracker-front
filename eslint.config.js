@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import pluginRouter from '@tanstack/eslint-plugin-router';
+
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import pluginReact from 'eslint-plugin-react';
@@ -17,17 +18,7 @@ export default defineConfig([
     plugins: { js, prettier: prettierPlugin },
     extends: ['js/recommended'],
     rules: {
-      'prettier/prettier': [
-        'error',
-        {
-          // These values should match your .prettierrc.js settings
-          semi: true,
-          singleQuote: true,
-          tabWidth: 2,
-          trailingComma: 'none',
-          printWidth: 80
-        }
-      ]
+      'prettier/prettier': 'error'
     }
   },
 

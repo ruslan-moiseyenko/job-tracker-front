@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router';
 
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppSidebar } from '@/app-sidebar/components/app-sidebar';
+
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import {
   Breadcrumb,

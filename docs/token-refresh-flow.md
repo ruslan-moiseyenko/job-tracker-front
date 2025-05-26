@@ -7,7 +7,7 @@ This document explains how our Apollo Client configuration handles authenticatio
 Our Apollo Client uses a chain of links to process GraphQL operations:
 
 ```typescript
-link: from([errorLink, refreshLink, authLink, httpLink])
+link: from([errorLink, refreshLink, authLink, httpLink]);
 ```
 
 Each link in this chain has a specific responsibility:

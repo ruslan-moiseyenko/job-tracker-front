@@ -4,13 +4,12 @@
   "tabWidth": 2,
   "trailingComma": "none",
   "printWidth": 80,
-  "plugins": [
-    "@trivago/prettier-plugin-sort-imports"
-  ],
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "importOrder": [
     "^react$",
     "^react-dom$",
     "^react(-dom)?/(.*)$",
+    "^@\\w(.*)$",
     "<THIRD_PARTY_MODULES>",
     "^@/components/(.*)$",
     "^@/hooks/(.*)$",

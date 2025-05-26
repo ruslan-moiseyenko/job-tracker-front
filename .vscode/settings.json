@@ -46,5 +46,14 @@
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.format.enable": false,
+  "prettier.requireConfig": true,
+  "eslint.codeActionsOnSave.mode": "problems"
 }

@@ -1,3 +1,5 @@
+import { type ApolloQueryResult } from '@apollo/client';
+
 import {
   GET_ME_QUERY,
   LOGIN_MUTATION,
@@ -18,7 +20,6 @@ import {
   resetApolloCache,
   terminateActiveQueries
 } from '@/graphql/apolloClient';
-import { type ApolloQueryResult } from '@apollo/client';
 
 import { logger } from '@/lib/logger';
 
@@ -153,7 +154,9 @@ export class Auth implements IAuthClient {
         // Basic user data from login response
         this.user = {
           id: '', // We'll get the full user data on next page load
-          email: user?.email || ''
+          email: user?.email || '',
+          createdAt: user?.createdAt || '',
+          updatedAt: user?.updatedAt || ''
         };
         this.isAuthenticated = true;
 

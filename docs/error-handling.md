@@ -13,30 +13,33 @@ We've implemented a centralized logger (`src/lib/logger.ts`) that provides envir
 For production environments, we recommend implementing one of these error monitoring services:
 
 ### 1. Sentry
+
 - **Description**: Real-time error tracking with detailed stack traces
 - **Integration**: https://docs.sentry.io/platforms/javascript/guides/react/
 - **Installation**: `npm install @sentry/react`
-- **Key Features**: 
+- **Key Features**:
   - Automatic error capturing
   - Release tracking
   - User context
   - Breadcrumbs for debugging user flows
 
 ### 2. LogRocket
+
 - **Description**: Session replay with error tracking
 - **Integration**: https://docs.logrocket.com/docs/react
 - **Installation**: `npm install logrocket`
-- **Key Features**: 
+- **Key Features**:
   - Session replay to see user actions
   - Network request monitoring
   - Redux state tracking
   - Console log recording
 
 ### 3. New Relic
+
 - **Description**: Full APM (Application Performance Monitoring)
 - **Integration**: https://docs.newrelic.com/docs/browser/browser-monitoring/getting-started/browser-agent-spa-api/
 - **Installation**: `npm install newrelic`
-- **Key Features**: 
+- **Key Features**:
   - Performance metrics
   - Error tracking
   - User experience monitoring
@@ -53,19 +56,16 @@ For production environments, we recommend implementing one of these error monito
 
 ```typescript
 // main.tsx
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react';
 
 Sentry.init({
-  dsn: "YOUR_SENTRY_DSN",
+  dsn: 'YOUR_SENTRY_DSN',
   environment: import.meta.env.MODE,
-  release: "job-tracker@1.0.0",
-  integrations: [
-    new Sentry.BrowserTracing(),
-    new Sentry.Replay()
-  ],
+  release: 'job-tracker@1.0.0',
+  integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0
 });
 
 // Update the logger.ts file to use Sentry for errors

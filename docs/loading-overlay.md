@@ -20,33 +20,34 @@ For application-wide loading indicators (e.g. during navigation, authentication)
 2. Use the `useLoadingContext` hook to access the global loading state:
 
 ```tsx
-import { useLoadingContext } from "@/components/ui/LoadingContext";
-import type { LoadingVariant } from "@/components/ui/LoadingOverlay";
+import { useLoadingContext } from '@/components/ui/LoadingContext';
+import type { LoadingVariant } from '@/components/ui/LoadingOverlay';
 
 function YourComponent() {
-  const { showLoading, hideLoading, updateMessage, updateVariant } = useLoadingContext();
-  
+  const { showLoading, hideLoading, updateMessage, updateVariant } =
+    useLoadingContext();
+
   const handleOperation = async () => {
     // Start with initial message and specified variant
-    showLoading("Processing...", "spinner"); // spinner, dots, or pulse
-    
+    showLoading('Processing...', 'spinner'); // spinner, dots, or pulse
+
     try {
       // Your async operations
       await someApiCall();
-      
+
       // Optionally update the message during processing
-      updateMessage("Almost done...");
-      
+      updateMessage('Almost done...');
+
       // Change the animation style if desired
-      updateVariant("pulse");
-      
+      updateVariant('pulse');
+
       await anotherApiCall();
     } finally {
       // Always hide the loading indicator when done
       hideLoading();
     }
   };
-  
+
   return <button onClick={handleOperation}>Start Operation</button>;
 }
 ```
@@ -64,37 +65,35 @@ The `LoadingOverlay` component supports three different loading animations:
 For component-specific loading (when you don't want to block the entire screen):
 
 ```tsx
-import { useLoading } from "@/hooks/useLoading";
-import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
+import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
+
+import { useLoading } from '@/hooks/useLoading';
 
 function YourComponent() {
-  const { 
-    isLoading, 
-    message, 
-    startLoading, 
-    stopLoading, 
-    updateMessage 
-  } = useLoading();
-  
+  const { isLoading, message, startLoading, stopLoading, updateMessage } =
+    useLoading();
+
   const handleOperation = async () => {
-    startLoading("Working...");
-    
+    startLoading('Working...');
+
     try {
       // Your component-specific operations
       await someOperation();
-      
+
       // Update the message if needed
-      updateMessage("Finalizing...");
-      
+      updateMessage('Finalizing...');
+
       await finalOperation();
     } finally {
       stopLoading();
     }
   };
-  
+
   return (
     <div>
-      <button onClick={handleOperation} disabled={isLoading}>Start</button>
+      <button onClick={handleOperation} disabled={isLoading}>
+        Start
+      </button>
       <LoadingOverlay isLoading={isLoading} message={message} />
     </div>
   );
@@ -106,23 +105,18 @@ function YourComponent() {
 The `useApiLoading` hook is specifically designed for API calls with integrated loading state management:
 
 ```tsx
-import { useApiLoading } from "@/hooks/useApiLoading";
+import { useApiLoading } from '@/hooks/useApiLoading';
 
 function DataFetcher() {
-  const { 
-    loading, 
-    error, 
-    data, 
-    execute 
-  } = useApiLoading({
-    useGlobalLoader: true,           // Use the global loading overlay 
-    initialMessage: "Fetching data...",
-    successMessage: "Data retrieved!",
-    errorMessage: "Failed to fetch data",
-    showSuccessState: true,          // Show success message before hiding
-    successStateDuration: 1000       // How long to show success message
+  const { loading, error, data, execute } = useApiLoading({
+    useGlobalLoader: true, // Use the global loading overlay
+    initialMessage: 'Fetching data...',
+    successMessage: 'Data retrieved!',
+    errorMessage: 'Failed to fetch data',
+    showSuccessState: true, // Show success message before hiding
+    successStateDuration: 1000 // How long to show success message
   });
-  
+
   const fetchData = async () => {
     // execute wraps your API call with loading state management
     const result = await execute(async () => {
@@ -130,13 +124,13 @@ function DataFetcher() {
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     });
-    
+
     if (result) {
       // Do something with the result
       console.log(result);
     }
   };
-  
+
   return (
     <div>
       <button onClick={fetchData} disabled={loading}>
@@ -156,12 +150,8 @@ You can use the `LoadingOverlay` component in a specific container rather than f
 ```tsx
 <div className="relative h-64 border rounded">
   <p>Content in the container...</p>
-  
-  <LoadingOverlay 
-    isLoading={loading} 
-    message="Loading..." 
-    fullScreen={false}
-  />
+
+  <LoadingOverlay isLoading={loading} message="Loading..." fullScreen={false} />
 </div>
 ```
 
@@ -184,6 +174,7 @@ The OAuth redirect component (in `src/routes/_auth/oauth-redirect.tsx`) demonstr
 ## Accessibility Considerations
 
 The loading overlay system is designed with accessibility in mind:
+
 - It uses appropriate ARIA attributes
 - Provides visual feedback through animations
 - Includes text descriptions of the loading state

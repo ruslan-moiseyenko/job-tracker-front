@@ -38,6 +38,9 @@ export const GET_ME_QUERY = gql`
       email
       firstName
       lastName
+      lastActiveSearchId
+      updatedAt
+      createdAt
     }
   }
 `;

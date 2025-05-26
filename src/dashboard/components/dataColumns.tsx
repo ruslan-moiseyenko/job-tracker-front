@@ -1,4 +1,3 @@
-import type { Application } from '@/dashboard/dashboard.types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +7,8 @@ import {
   DropdownMenuTrigger
 } from '@radix-ui/react-dropdown-menu';
 import type { ColumnDef } from '@tanstack/react-table';
+
+import type { Application } from '@/dashboard/dashboard.types';
 import { MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -66,7 +67,9 @@ export const applicationColumns: ColumnDef<Application>[] = [
     accessorKey: 'jobUrl',
     header: 'URL',
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('jobUrl')}</div>
+      <a href={row.getValue('jobUrl')} target="_blank" rel="noreferrer">
+        {row.getValue('jobUrl')}
+      </a>
     )
   },
   // {

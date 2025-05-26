@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import { logger as sentryLogger } from '@sentry/react';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+
 import { LoginCard } from '@/auth/components/LoginCard';
 import type { OAuthProvider } from '@/auth/components/OAuthProviderButtons';
 import { GoogleIcon } from '@/auth/components/OAuthProviderIcons';
 import { useGoogleAuthPopup } from '@/auth/hooks/useGoogleAuthPopup';
 import type { ILoginInput } from '@/auth/types';
 import { IS_LOGGED_OUT_KEY } from '@/graphql/apolloClient';
-import { logger as sentryLogger } from '@sentry/react';
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
 import { logger } from '@/lib/logger';
 

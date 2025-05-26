@@ -1,8 +1,11 @@
 export type User = {
   id: string;
   email: string;
+  createdAt: Date;
   firstName?: string;
   lastName?: string;
+  updatedAt: Date;
+  lastActiveSearchId?: string;
 };
 
 export interface IRegisterInput {
@@ -27,6 +30,9 @@ export interface ILoginMutationResponse {
     user: {
       id: string;
       email: string;
+      createdAt: Date;
+      updatedAt: Date;
+      lastActiveSearchId?: string;
       firstName?: string;
       lastName?: string;
     };
@@ -38,6 +44,9 @@ export interface IRegistrationMutationResponse {
     user: {
       id: string;
       email: string;
+      createdAt: Date;
+      updatedAt: Date;
+      lastActiveSearchId?: string;
       firstName?: string;
       lastName?: string;
     };
