@@ -132,3 +132,17 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes pulse-border {
+  0%,
+  100% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--primary);
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 4s ease-in-out infinite;
+}

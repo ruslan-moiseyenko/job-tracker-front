@@ -9,7 +9,6 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
 import type { RefreshTokenResponse } from '@/auth/types';
-
 import { logger } from '@/lib/logger';
 
 import { REFRESH_TOKEN } from '../auth/queries';
@@ -21,7 +20,6 @@ const isBrowser = typeof window !== 'undefined';
 export const ACCESS_TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
 export const IS_LOGGED_OUT_KEY = 'apollo_logged_out';
-// TODO: check if is_logged-out is needed
 
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
   forward ? forward(operation) : null
@@ -48,7 +46,6 @@ const _handleLogout = () => {
 
 const authLink = setContext((_, { headers }) => {
   // Return headers without manually adding authorization
-  //TODO: Check if this is needed
   return {
     headers: {
       ...headers
@@ -77,7 +74,7 @@ const createRefreshClient = () => {
 const refreshTokenRequest = async (): Promise<boolean> => {
   // Check if user is logged out - if so, don't attempt refresh
   if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
-    console.log('User is logged out, skipping refresh token request');
+    logger.info('User is logged out, skipping refresh token request');
     return false;
   }
 
@@ -92,7 +89,7 @@ const refreshTokenRequest = async (): Promise<boolean> => {
 
     // Check if the response contains data and was successful
     if (!response.data?.refreshToken.success) {
-      console.error('[Refresh Token Failed]: Success flag is false');
+      logger.error('[Refresh Token Failed]: Success flag is false');
       localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
 
       // Instead of redirecting (causing page reload),
@@ -116,7 +113,7 @@ const refreshTokenRequest = async (): Promise<boolean> => {
 
     return true;
   } catch (error) {
-    console.error('[Refresh Token Error]:', error);
+    logger.error('[Refresh Token Error]:', error);
     // Set the logged out flag to prevent further refresh attempts
     localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
 
@@ -164,7 +161,7 @@ const errorLink = onError(
         // Skip refresh token for refresh token operations to avoid loops
         if (path.includes(refreshTokenPathName)) {
           // If refreshToken operation itself fails with UNAUTHENTICATED, we should logout
-          console.error('Refresh token operation failed with UNAUTHENTICATED');
+          logger.error('Refresh token operation failed with UNAUTHENTICATED');
           localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
           if (isBrowser) {
             window.location.href = '/login';
@@ -184,7 +181,7 @@ const errorLink = onError(
 
         if (context._retryAttempt) {
           // Prevent infinite retry loops
-          console.error('Retry loop detected. Aborting.');
+          logger.error('Retry loop detected. Aborting.');
           localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
           if (isBrowser) {
             window.location.href = '/login';

@@ -12,10 +12,6 @@ import {
   type VisibilityState
 } from '@tanstack/react-table';
 
-import { useUserData } from '@/auth/hooks/userDataHook';
-import { applicationColumns } from '@/dashboard/components/dataColumns';
-import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
-import { fakeApplicationData } from '@/dashboard/components/fakeData';
 import { ChevronDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -33,6 +29,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { applicationColumns } from '@/dashboard/components/dataColumns';
+import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
+import { fakeApplicationData } from '@/dashboard/components/fakeData';
 
 export function DataTable() {
   const [sorting, setSorting] = React.useState<SortingState>([]);

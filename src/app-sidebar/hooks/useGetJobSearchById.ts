@@ -1,12 +1,15 @@
 import { useQuery } from '@apollo/client';
 
-import { GET_SEARCH_BY_ID } from '@/app-sidebar/queries';
-
+import { GET_SEARCH_BY_ID } from '@/app-sidebar/sidebar.queries';
+import type { JobSearchType } from '@/app-sidebar/sidebar.types';
 import { logger } from '@/lib/logger';
 
-export const useGetJobSearchById = (id: string) => {
-  const { data, loading, error, refetch } = useQuery(GET_SEARCH_BY_ID, {
+export const useGetJobSearchById = (id: string | undefined | null) => {
+  const { data, loading, error, refetch } = useQuery<{
+    getJobSearchById: JobSearchType;
+  }>(GET_SEARCH_BY_ID, {
     variables: { id },
+    skip: !id, // Skip query if id is undefined/null
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     errorPolicy: 'all'
