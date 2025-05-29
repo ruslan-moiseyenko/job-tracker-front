@@ -2,12 +2,12 @@
 
 import type { Table } from '@tanstack/react-table';
 
-import { DataTableFacetedFilter } from '@/dashboard/components/DataTableFacetedFilter';
-import { fakeStages, fakeStatuses } from '@/dashboard/components/fakeData';
 import { X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DataTableFacetedFilter } from '@/dashboard/components/DataTableFacetedFilter';
+import { fakeStages, fakeStatuses } from '@/dashboard/components/fakeData';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;

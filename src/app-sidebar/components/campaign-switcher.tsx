@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronsUpDown, GalleryVerticalEnd, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { CreateNewSearchDialog } from '@/app-sidebar/components/create-search-dialog';
 import { useGetFilteredJobSearches } from '@/app-sidebar/hooks/useGetFilteredJobSearches';
 import { useUpdateLastActiveSearch } from '@/app-sidebar/hooks/useUpdateLastActiveSearch';
 import { useUserWithJobSearch } from '@/app-sidebar/hooks/useUserWithJobSearch';
@@ -24,6 +25,8 @@ import {
 } from '@/components/ui/sidebar';
 
 export function CampaignSwitcher() {
+  const [openDialog, setDialogIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { isMobile } = useSidebar();
   const { userData: _userData, jobSearch } = useUserWithJobSearch();
   const { updateLastActiveSearch, loading: isUpdating } =
@@ -89,6 +92,15 @@ export function CampaignSwitcher() {
     }
   };
 
+  const handleOpenDialog = () => {
+    // To avoid conflicts, close dropdown first,
+    // then open dialog after a small delay
+    setDropdownOpen(false);
+    setTimeout(() => {
+      setDialogIsOpen(true);
+    }, 100);
+  };
+
   if (loading) {
     return (
       <SidebarMenu>
@@ -111,15 +123,19 @@ export function CampaignSwitcher() {
     return (
       <SidebarMenu>
         <SidebarMenuItem className="border animate-pulse-border rounded-md">
-          <SidebarMenuButton size="lg">
+          <SidebarMenuButton size="lg" onClick={() => setDialogIsOpen(true)}>
             <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
               <Plus className="size-4" />
             </div>
             <div className="text-muted-foreground font-medium">
-              Start new search campaign
+              Start a new search
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
+        <CreateNewSearchDialog
+          isOpen={openDialog}
+          setIsOpen={setDialogIsOpen}
+        />
       </SidebarMenu>
     );
   }
@@ -127,7 +143,7 @@ export function CampaignSwitcher() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -172,17 +188,24 @@ export function CampaignSwitcher() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem
+              className="gap-2 p-2"
+              onClick={handleOpenDialog}
+              onSelect={(e) => {
+                e.preventDefault(); // Prevent default closing behavior
+              }}
+            >
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>
               <div className="text-muted-foreground font-medium">
-                Start new search campaign
+                Start new Search campaign
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      <CreateNewSearchDialog isOpen={openDialog} setIsOpen={setDialogIsOpen} />
     </SidebarMenu>
   );
 }

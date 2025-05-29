@@ -7,9 +7,6 @@ export const GET_SEARCH_BY_ID = gql`
       title
       description
       createdAt
-      startDate
-      endDate
-      isActive
       createdAt
       updatedAt
     }
@@ -25,9 +22,6 @@ export const GET_ALL_SEARCHES = gql`
       title
       description
       createdAt
-      startDate
-      endDate
-      isActive
       createdAt
       updatedAt
     }
@@ -43,5 +37,17 @@ export const SET_LAST_ACTIVE_SEARCH = gql`
 export const GET_LAST_ACTIVE_SEARCH = gql`
   query getLastActiveJobSearch {
     getLastActiveSearch
+  }
+`;
+
+export const CREATE_JOB_SEARCH = gql`
+  mutation createJobSearch($title: String!, $description: String) {
+    createJobSearch(input: { title: $title, description: $description }) {
+      id
+      title
+      description
+      createdAt
+      updatedAt
+    }
   }
 `;
