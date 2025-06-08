@@ -9,9 +9,9 @@ export const useGetJobSearchById = (id: string | undefined | null) => {
     getJobSearchById: JobSearchType;
   }>(GET_SEARCH_BY_ID, {
     variables: { id },
-    skip: !id, // Skip query if id is undefined/null
-    fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
+    skip: !id,
+    fetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: false,
     errorPolicy: 'all'
   });
 

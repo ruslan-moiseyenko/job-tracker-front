@@ -81,8 +81,8 @@ export const useGetFilteredJobSearches = (
       filter: params?.filter,
       pagination: params?.pagination
     },
-    fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: false,
     errorPolicy: 'all'
   });
 

@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 
 import { CreateNewSearchDialog } from '@/app-sidebar/components/create-search-dialog';
 import { useGetFilteredJobSearches } from '@/app-sidebar/hooks/useGetFilteredJobSearches';
+import { useGetJobSearchById } from '@/app-sidebar/hooks/useGetJobSearchById';
 import { useUpdateLastActiveSearch } from '@/app-sidebar/hooks/useUpdateLastActiveSearch';
-import { useUserWithJobSearch } from '@/app-sidebar/hooks/useUserWithJobSearch';
 import type { JobSearchType } from '@/app-sidebar/sidebar.types';
+import { useUserData } from '@/auth/hooks/useUserData';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +29,8 @@ export function CampaignSwitcher() {
   const [openDialog, setDialogIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { isMobile } = useSidebar();
-  const { userData: _userData, jobSearch } = useUserWithJobSearch();
+  const { userData } = useUserData();
+  const { jobSearch } = useGetJobSearchById(userData?.lastActiveSearchId);
   const { updateLastActiveSearch, loading: isUpdating } =
     useUpdateLastActiveSearch();
 

@@ -1,4 +1,3 @@
-import type { Application } from '@/dashboard/dashboard.types';
 import {
   HandCoins,
   ListStart,
@@ -7,7 +6,12 @@ import {
   PersonStanding
 } from 'lucide-react';
 
-export const fakeApplicationData: Application[] = [
+// NOTE: This fake data is deprecated and not used in the simplified implementation
+// Using real data from GraphQL queries instead
+
+// Commented out deprecated fake data to fix TypeScript compilation errors
+/*
+export const fakeApplicationData: ApplicationType[] = [
   {
     id: '1',
     companyName: 'Global Technologies',
@@ -43,6 +47,7 @@ export const fakeApplicationData: Application[] = [
     status: 'failed'
   }
 ];
+*/
 
 export const fakeStages = [
   {

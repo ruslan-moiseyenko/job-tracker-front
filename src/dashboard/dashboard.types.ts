@@ -1,9 +1,28 @@
-export type Application = {
+export type ApplicationType = {
   id: string;
-  companyName: string;
-  jobTitle: string;
-  jobUrl: string;
-  stage: 'applied' | 'interview' | 'offer' | 'rejected';
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  salary?: number;
+  company: Pick<CompanyType, 'id' | 'name'>;
+  currentStage: Pick<ApplicationStageType, 'id' | 'name' | 'order' | 'color'>;
+  positionTitle: string;
+  jobDescription: string;
+  customColor: string;
+  applicationDate: string;
+  jobLinks: string[];
+  salary: number | null;
+  updatedAt: Date;
+  createdAt: Date;
+};
+
+export type CompanyType = {
+  id: string;
+  name: string;
+  description: string;
+  website: string;
+};
+
+export type ApplicationStageType = {
+  id: string;
+  name: string;
+  description: string;
+  order: number;
+  color: string;
 };

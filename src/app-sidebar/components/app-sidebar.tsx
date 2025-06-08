@@ -4,8 +4,8 @@ import { CampaignSwitcher } from '@/app-sidebar/components/campaign-switcher';
 import { NavMain } from '@/app-sidebar/components/nav-main';
 // import { NavProjects } from '@/components/nav-projects';
 import { NavUser } from '@/app-sidebar/components/nav-user';
-import { useUserWithJobSearch } from '@/app-sidebar/hooks/useUserWithJobSearch';
 import { NAVIGATION_DATA } from '@/app-sidebar/sidebar.variables';
+import { useUserData } from '@/auth/hooks/useUserData';
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,8 @@ import {
 } from '@/components/ui/sidebar';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { userData, jobSearch: _jobSearch, isLoading } = useUserWithJobSearch();
+  // Direct data fetching - no complex context layer
+  const { userData, loading } = useUserData();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -32,7 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ) : (
           <div className="flex items-center justify-center p-4">
             <span className="text-sm text-muted-foreground">
-              {isLoading ? 'Loading user data...' : 'User data not available'}
+              {loading ? 'Loading user data...' : 'User data not available'}
             </span>
           </div>
         )}

@@ -45,7 +45,6 @@ const _handleLogout = () => {
 };
 
 const authLink = setContext((_, { headers }) => {
-  // Return headers without manually adding authorization
   return {
     headers: {
       ...headers
@@ -243,11 +242,11 @@ export const apolloClient = new ApolloClient({
   connectToDevTools: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first', // Changed from 'cache-and-network' to prevent double renders
       errorPolicy: 'all'
     },
     query: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-first',
       errorPolicy: 'all'
     },
     mutate: {
@@ -258,8 +257,8 @@ export const apolloClient = new ApolloClient({
 
 // Function to clean up Apollo state
 export const terminateActiveQueries = () => {
-  // Since queryManager is private in Apollo Client, we'll use the public API
-  apolloClient.stop(); // This stops all active queries
+  // Stops all active queries
+  apolloClient.stop();
 };
 
 export const resetApolloCache = async () => {

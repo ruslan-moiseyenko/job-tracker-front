@@ -21,8 +21,6 @@ import {
 // import { Route as RootRoute } from "../../routes/__root";
 
 export function ProtectedLayout() {
-  // const { auth } = Route.useRouteContext();
-
   return (
     <SidebarProvider>
       <AppSidebar />

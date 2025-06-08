@@ -7,7 +7,11 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableFacetedFilter } from '@/dashboard/components/DataTableFacetedFilter';
-import { fakeStages, fakeStatuses } from '@/dashboard/components/fakeData';
+import { fakeStages } from '@/dashboard/components/fakeData';
+import {
+  APPLICATION_COLUMNS,
+  FILTER_PLACEHOLDERS
+} from '@/dashboard/dashboard.constants';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -22,27 +26,24 @@ export function DataTableToolbar<TData>({
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder="Filter tasks..."
+          placeholder={FILTER_PLACEHOLDERS.COMPANY}
           value={
-            (table.getColumn('companyName')?.getFilterValue() as string) ?? ''
+            (table
+              .getColumn(APPLICATION_COLUMNS.COMPANY)
+              ?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('companyName')?.setFilterValue(event.target.value)
+            table
+              .getColumn(APPLICATION_COLUMNS.COMPANY)
+              ?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn('status') && (
+        {table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE) && (
           <DataTableFacetedFilter
-            column={table.getColumn('stage')}
+            column={table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE)}
             title="Stage"
             options={fakeStages}
-          />
-        )}
-        {table.getColumn('stage') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('status')}
-            title="Status"
-            options={fakeStatuses}
           />
         )}
         {isFiltered && (

@@ -87,7 +87,8 @@ export const CreateNewSearchDialog: FC<CreateNewSearchDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Create New Job Search</DialogTitle>
           <DialogDescription>
-            Create a new job search to organize and track your job applications.
+            Create a new job search campaign to organize and track your job
+            applications.
           </DialogDescription>
         </DialogHeader>
 

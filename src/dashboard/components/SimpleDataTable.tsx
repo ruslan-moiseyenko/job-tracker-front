@@ -35,7 +35,7 @@ import { applicationColumns } from '@/dashboard/components/dataColumns';
 import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
 import { useGetApplicationBySearchId } from '@/dashboard/hooks/useGetApplicationBySearchId';
 
-export function DataTable() {
+export function SimpleDataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

@@ -8,15 +8,16 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import type { ColumnDef } from '@tanstack/react-table';
 
-import type { Application } from '@/dashboard/dashboard.types';
 import { MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { APPLICATION_COLUMNS } from '@/dashboard/dashboard.constants';
+import type { ApplicationType } from '@/dashboard/dashboard.types';
 
-export const applicationColumns: ColumnDef<Application>[] = [
+export const applicationColumns: ColumnDef<ApplicationType>[] = [
   {
-    id: 'select',
+    id: APPLICATION_COLUMNS.SELECT,
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -38,39 +39,66 @@ export const applicationColumns: ColumnDef<Application>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'companyName',
+    accessorKey: APPLICATION_COLUMNS.COMPANY,
     header: 'Company',
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('companyName')}</div>
-    )
+    cell: ({ row }) => {
+      const company = row.getValue(APPLICATION_COLUMNS.COMPANY) as {
+        id: string;
+        name: string;
+      };
+      return <div className="capitalize">{company?.name}</div>;
+    },
+    filterFn: (row, id, value) => {
+      const company = row.getValue(id) as { id: string; name: string };
+      return company?.name?.toLowerCase().includes(value.toLowerCase());
+    }
   },
   {
-    accessorKey: 'jobTitle',
+    accessorKey: APPLICATION_COLUMNS.POSITION_TITLE,
     header: 'Title',
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('jobTitle')}</div>
+      <div className="capitalize">
+        {row.getValue(APPLICATION_COLUMNS.POSITION_TITLE)}
+      </div>
     )
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('status')}</div>
-    )
-  },
-  {
-    accessorKey: 'stage',
+    accessorKey: APPLICATION_COLUMNS.CURRENT_STAGE,
     header: 'Stage',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('stage')}</div>
+    cell: ({ row }) => {
+      const stage = row.getValue(APPLICATION_COLUMNS.CURRENT_STAGE) as {
+        id: string;
+        name: string;
+        order: number;
+        color: string;
+      };
+      return (
+        <div className="capitalize" style={{ backgroundColor: stage?.color }}>
+          {stage?.name}
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      const stage = row.getValue(id) as {
+        id: string;
+        name: string;
+        order: number;
+        color: string;
+      };
+      return value.includes(stage?.name?.toLowerCase());
+    }
   },
   {
-    accessorKey: 'jobUrl',
+    accessorKey: APPLICATION_COLUMNS.JOB_LINKS,
     header: 'URL',
-    cell: ({ row }) => (
-      <a href={row.getValue('jobUrl')} target="_blank" rel="noreferrer">
-        {row.getValue('jobUrl')}
-      </a>
-    )
+    cell: ({ row }) => {
+      const links = row.getValue(APPLICATION_COLUMNS.JOB_LINKS) as string[];
+      return links && links.length > 0 ? (
+        <a href={links[0]} target="_blank" rel="noreferrer">
+          View Job
+        </a>
+      ) : null;
+    }
   },
   // {
   //   accessorKey: 'email',
@@ -88,10 +116,10 @@ export const applicationColumns: ColumnDef<Application>[] = [
   //   cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>
   // },
   {
-    accessorKey: 'salary',
+    accessorKey: APPLICATION_COLUMNS.SALARY,
     header: () => <div className="text-right">Salary</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('salary'));
+      const amount = parseFloat(row.getValue(APPLICATION_COLUMNS.SALARY));
 
       // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat('en-US', {
@@ -103,10 +131,10 @@ export const applicationColumns: ColumnDef<Application>[] = [
     }
   },
   {
-    id: 'actions',
+    id: APPLICATION_COLUMNS.ACTIONS,
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const application = row.original;
 
       return (
         <DropdownMenu>
@@ -119,13 +147,13 @@ export const applicationColumns: ColumnDef<Application>[] = [
           <DropdownMenuContent align="end" className="bg-secondary">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(application.id)}
             >
-              Copy payment ID
+              Copy application ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem>Edit application</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
