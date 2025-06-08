@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react';
 
 import { GET_ME_QUERY } from '@/auth/queries';
-import { IS_LOGGED_OUT_KEY } from '@/graphql/apolloClient';
 import { apolloClient } from '@/graphql/apolloClient';
+import { IS_LOGGED_OUT_KEY } from '@/graphql/local-storage-keys';
 
 export function useGoogleAuthPopup(
   onSuccess: () => void,

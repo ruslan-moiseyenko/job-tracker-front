@@ -16,10 +16,10 @@ import type {
 } from '@/auth/types';
 import {
   apolloClient,
-  IS_LOGGED_OUT_KEY,
   resetApolloCache,
   terminateActiveQueries
 } from '@/graphql/apolloClient';
+import { IS_LOGGED_OUT_KEY } from '@/graphql/local-storage-keys';
 import { logger } from '@/lib/logger';
 
 // Factory function to create Auth instances

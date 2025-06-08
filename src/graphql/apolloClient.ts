@@ -9,6 +9,7 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
 import type { RefreshTokenResponse } from '@/auth/types';
+import { IS_LOGGED_OUT_KEY } from '@/graphql/local-storage-keys';
 import { logger } from '@/lib/logger';
 
 import { REFRESH_TOKEN } from '../auth/queries';
@@ -29,11 +30,6 @@ export const setRouterNavigate = (
 ) => {
   routerNavigate = navigate;
 };
-
-// Constants for localStorage keys
-export const ACCESS_TOKEN_KEY = 'access_token';
-export const REFRESH_TOKEN_KEY = 'refresh_token';
-export const IS_LOGGED_OUT_KEY = 'apollo_logged_out';
 
 let httpLink: ApolloLink = new ApolloLink((operation, forward) =>
   forward ? forward(operation) : null
