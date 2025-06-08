@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useQuery } from '@apollo/client';
 
 import { GET_APPLICATIONS_BY_SEARCH_ID } from '@/dashboard/dashboard.queries';
@@ -21,8 +23,13 @@ export const useGetApplicationBySearchId = (
     logger.error('Error fetching applications by search ID:', error);
   }
 
+  // Memoize applications array to prevent pagination infinite loop
+  const applications = useMemo(() => {
+    return data?.getJobApplicationsBySearchId || [];
+  }, [data?.getJobApplicationsBySearchId]);
+
   return {
-    applications: data?.getJobApplicationsBySearchId || [],
+    applications,
     loading,
     error,
     refetch
