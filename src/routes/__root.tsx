@@ -4,8 +4,8 @@ import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import type { IAuthClient } from '@/auth/types';
-
 import { ErrorPage } from '@/components/common/ErrorPage';
+import { RouterApolloSetup } from '@/components/common/RouterApolloSetup';
 
 interface IRouterContext {
   auth: IAuthClient;
@@ -54,6 +54,7 @@ export const Route = createRootRouteWithContext<IRouterContext>()({
 
     return (
       <>
+        <RouterApolloSetup />
         <Outlet />
         <TanStackRouterDevtools position="bottom-right" />
       </>

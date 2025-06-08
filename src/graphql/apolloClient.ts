@@ -16,6 +16,20 @@ import { REFRESH_TOKEN } from '../auth/queries';
 // Check if we're running in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
+// Global refresh state management
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+// Router navigation function - will be set externally
+let routerNavigate: ((options: { to: string }) => void) | null = null;
+
+// Function to set the router navigation function
+export const setRouterNavigate = (
+  navigate: ((options: { to: string }) => void) | null
+) => {
+  routerNavigate = navigate;
+};
+
 // Constants for localStorage keys
 export const ACCESS_TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -33,15 +47,24 @@ if (isBrowser) {
   });
 }
 
-// Helper function to handle logout
-// NOTE: We now directly use the logout logic inline instead of calling this function
-// to make the flow more explicit and avoid missed redirects
-const _handleLogout = () => {
-  if (isBrowser) {
-    localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
-    // Force reload to reset Apollo Client state
-    window.location.href = '/login';
+// Helper function to handle logout using router navigation
+const handleLogout = () => {
+  localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
+
+  if (isBrowser && shouldRedirectToLogin()) {
+    if (routerNavigate) {
+      // Use router navigation to avoid page reload
+      routerNavigate({ to: '/login' });
+    } else {
+      // Fallback to window.location.href if router is not available
+      window.location.href = '/login';
+    }
   }
+};
+
+const shouldRedirectToLogin = (): boolean => {
+  const pathname = window.location.pathname;
+  return pathname !== '/login' && pathname !== '/register' && pathname !== '/';
 };
 
 const authLink = setContext((_, { headers }) => {
@@ -67,16 +90,35 @@ const createRefreshClient = () => {
 };
 
 /**
- * Refresh token request function
- * This function is responsible for refreshing the access token using the refresh token
+ * Refresh token request function with global state management
  */
 const refreshTokenRequest = async (): Promise<boolean> => {
+  // If already refreshing, return the existing promise
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+
   // Check if user is logged out - if so, don't attempt refresh
   if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
     logger.info('User is logged out, skipping refresh token request');
     return false;
   }
 
+  // Set refreshing state and create promise
+  isRefreshing = true;
+  refreshPromise = performTokenRefresh();
+
+  try {
+    const result = await refreshPromise;
+    return result;
+  } finally {
+    // Reset state
+    isRefreshing = false;
+    refreshPromise = null;
+  }
+};
+
+const performTokenRefresh = async (): Promise<boolean> => {
   try {
     // Use a separate client to avoid circular dependencies
     const refreshClient = createRefreshClient();
@@ -89,46 +131,14 @@ const refreshTokenRequest = async (): Promise<boolean> => {
     // Check if the response contains data and was successful
     if (!response.data?.refreshToken.success) {
       logger.error('[Refresh Token Failed]: Success flag is false');
-      localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
-
-      // Instead of redirecting (causing page reload),
-      // timeout is set to allow other operations to complete first
-      // This prevents the page from immediately reloading and re-triggering requests
-      if (isBrowser) {
-        setTimeout(() => {
-          // Only redirect if we're not already on the login page
-          if (
-            window.location.pathname !== '/login' &&
-            window.location.pathname !== '/register' &&
-            window.location.pathname !== '/'
-          ) {
-            window.location.href = '/login';
-          }
-        }, 100);
-      }
-
+      handleLogout();
       return false;
     }
 
     return true;
   } catch (error) {
     logger.error('[Refresh Token Error]:', error);
-    // Set the logged out flag to prevent further refresh attempts
-    localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
-
-    // Same delayed redirect approach as above
-    if (isBrowser) {
-      setTimeout(() => {
-        if (
-          window.location.pathname !== '/login' &&
-          window.location.pathname !== '/register' &&
-          window.location.pathname !== '/'
-        ) {
-          window.location.href = '/login';
-        }
-      }, 100);
-    }
-
+    handleLogout();
     return false;
   }
 };
@@ -139,13 +149,12 @@ const errorLink = onError(
     // Check if user is already logged out - if so, don't process errors
     if (localStorage.getItem(IS_LOGGED_OUT_KEY) === 'true') {
       // If on a protected route, redirect to login
-      if (
-        isBrowser &&
-        window.location.pathname !== '/' &&
-        window.location.pathname !== '/login' &&
-        window.location.pathname !== '/register'
-      ) {
-        window.location.href = '/login';
+      if (isBrowser && shouldRedirectToLogin()) {
+        if (routerNavigate) {
+          routerNavigate({ to: '/login' });
+        } else {
+          window.location.href = '/login';
+        }
       }
       return;
     }
@@ -161,10 +170,7 @@ const errorLink = onError(
         if (path.includes(refreshTokenPathName)) {
           // If refreshToken operation itself fails with UNAUTHENTICATED, we should logout
           logger.error('Refresh token operation failed with UNAUTHENTICATED');
-          localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
-          if (isBrowser) {
-            window.location.href = '/login';
-          }
+          handleLogout();
           return;
         }
 
@@ -181,10 +187,7 @@ const errorLink = onError(
         if (context._retryAttempt) {
           // Prevent infinite retry loops
           logger.error('Retry loop detected. Aborting.');
-          localStorage.setItem(IS_LOGGED_OUT_KEY, 'true');
-          if (isBrowser) {
-            window.location.href = '/login';
-          }
+          handleLogout();
           return;
         }
 

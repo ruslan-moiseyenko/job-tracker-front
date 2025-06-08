@@ -20,7 +20,6 @@ import {
   resetApolloCache,
   terminateActiveQueries
 } from '@/graphql/apolloClient';
-
 import { logger } from '@/lib/logger';
 
 // Factory function to create Auth instances
