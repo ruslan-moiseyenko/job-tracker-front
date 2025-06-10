@@ -14,7 +14,6 @@ import {
 
 import { ChevronDown } from 'lucide-react';
 
-import { useGetJobSearchById } from '@/app-sidebar/hooks/useGetJobSearchById';
 import { useUserData } from '@/auth/hooks/useUserData';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { LocalLoadingOverlay } from '@/components/ui/LocalLoadingOverlay';
 import {
   Table,
   TableBody,
@@ -34,6 +34,7 @@ import {
 import { applicationColumns } from '@/dashboard/components/dataColumns';
 import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
 import { useGetApplicationBySearchId } from '@/dashboard/hooks/useGetApplicationBySearchId';
+import { useGetStages } from '@/dashboard/hooks/useGetStages';
 
 export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -42,8 +43,16 @@ export function DataTable() {
   const [rowSelection, setRowSelection] = useState({});
 
   const { userData } = useUserData();
-  const { jobSearch } = useGetJobSearchById(userData?.lastActiveSearchId);
-  const { applications } = useGetApplicationBySearchId(jobSearch?.id);
+
+  const { stageFilterOptions, loading: stagesLoading } = useGetStages();
+
+  const {
+    applications,
+    loading: appsLoading,
+    error
+  } = useGetApplicationBySearchId(userData?.lastActiveSearchId);
+
+  const loading = stagesLoading || appsLoading;
 
   const table = useReactTable({
     data: applications,
@@ -64,10 +73,24 @@ export function DataTable() {
     }
   });
 
+  if (error) {
+    return (
+      <div className="w-full flex items-center justify-center h-[400px] text-center">
+        <div>
+          <p className="text-destructive mb-2">Failed to load dashboard data</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full">
+    <div className="relative w-full">
       <div className="flex items-center py-4 px-4">
-        <DataTableToolbar table={table} />
+        <DataTableToolbar
+          table={table}
+          stageFilterOptions={stageFilterOptions}
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -169,6 +192,19 @@ export function DataTable() {
           </Button>
         </div>
       </div>
+
+      {/* Local loading overlay - shows over existing content */}
+      <LocalLoadingOverlay
+        isLoading={loading}
+        message={
+          stagesLoading && appsLoading
+            ? 'Loading data...'
+            : stagesLoading
+              ? 'Loading stages...'
+              : 'Loading applications...'
+        }
+        variant="spinner"
+      />
     </div>
   );
 }

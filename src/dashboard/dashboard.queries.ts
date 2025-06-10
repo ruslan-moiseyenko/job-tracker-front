@@ -11,6 +11,8 @@ export const GET_APPLICATIONS_BY_SEARCH_ID = gql`
       currentStage {
         id
         name
+        order
+        color
       }
       positionTitle
       jobDescription
@@ -20,6 +22,18 @@ export const GET_APPLICATIONS_BY_SEARCH_ID = gql`
       salary
       updatedAt
       createdAt
+    }
+  }
+`;
+
+export const GET_ALL_STAGES = gql`
+  query getAllStages {
+    getAllStages {
+      id
+      name
+      description
+      order
+      color
     }
   }
 `;

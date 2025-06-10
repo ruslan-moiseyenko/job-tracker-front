@@ -7,7 +7,6 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableFacetedFilter } from '@/dashboard/components/DataTableFacetedFilter';
-import { fakeStages } from '@/dashboard/components/fakeData';
 import {
   APPLICATION_COLUMNS,
   FILTER_PLACEHOLDERS
@@ -15,10 +14,18 @@ import {
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  stageFilterOptions?: {
+    label: string;
+    value: string;
+    id?: string;
+    order?: number;
+    color?: string;
+  }[];
 }
 
 export function DataTableToolbar<TData>({
-  table
+  table,
+  stageFilterOptions = []
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -39,13 +46,14 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE) && (
-          <DataTableFacetedFilter
-            column={table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE)}
-            title="Stage"
-            options={fakeStages}
-          />
-        )}
+        {table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE) &&
+          stageFilterOptions.length > 0 && (
+            <DataTableFacetedFilter
+              column={table.getColumn(APPLICATION_COLUMNS.CURRENT_STAGE)}
+              title="Stage"
+              options={stageFilterOptions}
+            />
+          )}
         {isFiltered && (
           <Button
             variant="ghost"
