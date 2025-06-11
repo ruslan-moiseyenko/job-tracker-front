@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { applicationColumns } from '@/dashboard/components/dataColumns';
+import { generateStandardColumns } from '@/dashboard/column-generator';
 import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
 import { useGetApplicationBySearchId } from '@/dashboard/hooks/useGetApplicationBySearchId';
 import { useGetStages } from '@/dashboard/hooks/useGetStages';
@@ -39,7 +39,10 @@ import { useGetStages } from '@/dashboard/hooks/useGetStages';
 export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    updatedAt: false, // Hidden by default
+    jobDescription: false
+  });
   const [rowSelection, setRowSelection] = useState({});
 
   const { userData } = useUserData();
@@ -54,9 +57,12 @@ export function DataTable() {
 
   const loading = stagesLoading || appsLoading;
 
+  // Generate columns using the new type-safe approach
+  const columns = generateStandardColumns();
+
   const table = useReactTable({
     data: applications,
-    columns: applicationColumns,
+    columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -158,7 +164,7 @@ export function DataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={applicationColumns.length}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
