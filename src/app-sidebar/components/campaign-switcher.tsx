@@ -130,7 +130,7 @@ export function CampaignSwitcher() {
               <Plus className="size-4" />
             </div>
             <div className="text-muted-foreground font-medium">
-              Start a new search
+              Start new search
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -154,7 +154,7 @@ export function CampaignSwitcher() {
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 <GalleryVerticalEnd className="size-4" />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight select-none">
                 <span className="truncate font-medium">
                   {activeCampaign?.title}
                 </span>

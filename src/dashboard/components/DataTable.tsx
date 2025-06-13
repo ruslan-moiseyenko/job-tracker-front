@@ -32,6 +32,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { generateStandardColumns } from '@/dashboard/column-generator';
+import { AddNewApplication } from '@/dashboard/components/AddNewApplication';
 import { DataTableToolbar } from '@/dashboard/components/DataTableToolbar';
 import { useGetApplicationBySearchId } from '@/dashboard/hooks/useGetApplicationBySearchId';
 import { useGetStages } from '@/dashboard/hooks/useGetStages';
@@ -52,7 +53,8 @@ export function DataTable() {
   const {
     applications,
     loading: appsLoading,
-    error
+    error,
+    refetch: refetchApplications
   } = useGetApplicationBySearchId(userData?.lastActiveSearchId);
 
   const loading = stagesLoading || appsLoading;
@@ -92,37 +94,41 @@ export function DataTable() {
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center py-4 px-4">
+      <div className="flex items-center py-2 px-4 gap-2 justify-between">
         <DataTableToolbar
           table={table}
           stageFilterOptions={stageFilterOptions}
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <div className="flex items-center gap-2">
+          <AddNewApplication onApplicationCreated={refetchApplications} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="select-none ">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

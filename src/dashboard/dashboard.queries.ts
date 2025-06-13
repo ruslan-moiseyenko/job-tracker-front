@@ -37,3 +37,49 @@ export const GET_ALL_STAGES = gql`
     }
   }
 `;
+
+export const CREATE_JOB_APPLICATION_MUTATION = gql`
+  mutation createJobApplication(
+    $currentStageId: String
+    $customColor: String
+    $jobDescription: String
+    $jobSearchId: String!
+    $positionTitle: String!
+    $salary: Int
+    $company: CompanyInput!
+    $jobLinks: [String!]!
+  ) {
+    createJobApplication(
+      input: {
+        company: $company
+        currentStageId: $currentStageId
+        customColor: $customColor
+        jobDescription: $jobDescription
+        jobLinks: $jobLinks
+        jobSearchId: $jobSearchId
+        positionTitle: $positionTitle
+        salary: $salary
+      }
+    ) {
+      id
+      positionTitle
+      jobDescription
+      customColor
+      applicationDate
+      jobLinks
+      salary
+      updatedAt
+      createdAt
+      company {
+        id
+        name
+      }
+      currentStage {
+        id
+        name
+        order
+        color
+      }
+    }
+  }
+`;

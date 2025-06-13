@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import type { Column } from '@tanstack/react-table';
 
-import { Check, PlusCircle } from 'lucide-react';
+import { Check, Funnel, PlusCircle } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-
 import { cn } from '@/lib/utils';
 
 interface DataTableFacetedFilterProps<TData, TValue> {
@@ -46,7 +45,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <PlusCircle />
+          <Funnel />
           {title}
           {selectedValues?.size > 0 && (
             <>

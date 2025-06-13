@@ -175,3 +175,5 @@ export const FILTER_PLACEHOLDERS = {
   STAGE: 'Filter stages...',
   POSITION: 'Filter positions...'
 } as const;
+
+export const SEARCH_DEBOUNCE_DELAY = 400; // 400ms debounce for search inputs

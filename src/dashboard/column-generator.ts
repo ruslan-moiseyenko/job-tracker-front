@@ -175,7 +175,7 @@ const generateDataColumn = (
                   target: '_blank',
                   rel: 'noreferrer'
                 },
-                'View Job'
+                String(links[0].slice(0, 15) + '...')
               )
             : null;
         }

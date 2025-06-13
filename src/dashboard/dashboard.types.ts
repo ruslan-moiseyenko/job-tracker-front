@@ -26,3 +26,48 @@ export type ApplicationStageType = {
   order: number;
   color: string;
 };
+
+export type CompanyInputType =
+  | {
+      existingCompanyId: string;
+    }
+  | {
+      newCompany: {
+        name: string;
+        website?: string;
+        description?: string;
+      };
+    };
+
+export interface CreateJobApplicationInput {
+  currentStageId?: string;
+  customColor?: string;
+  jobDescription?: string;
+  jobSearchId: string;
+  positionTitle: string;
+  salary?: number;
+  company: CompanyInputType;
+  jobLinks: string[];
+}
+
+export interface JobApplication {
+  id: string;
+  positionTitle: string;
+  jobDescription?: string;
+  customColor?: string;
+  applicationDate: string;
+  jobLinks: string[];
+  salary?: number;
+  updatedAt: string;
+  createdAt: string;
+  company: {
+    id: string;
+    name: string;
+  };
+  currentStage: {
+    id: string;
+    name: string;
+    order: number;
+    color: string;
+  };
+}
