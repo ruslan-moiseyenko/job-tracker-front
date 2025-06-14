@@ -282,7 +282,7 @@ export const AddNewApplication = ({
 
       <Sheet open={isOpen} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>
-          <Button variant="secondary">
+          <Button variant="default">
             <PlusCircle />
             New application
           </Button>
@@ -356,7 +356,7 @@ export const AddNewApplication = ({
                             role="combobox"
                             aria-expanded={stageOpen}
                             className={cn(
-                              'justify-between',
+                              'justify-between w-fit min-w-fit',
                               !field.value && 'text-muted-foreground'
                             )}
                             disabled={loading || stagesLoading}
