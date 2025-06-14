@@ -177,3 +177,18 @@ export const FILTER_PLACEHOLDERS = {
 } as const;
 
 export const SEARCH_DEBOUNCE_DELAY = 400; // 400ms debounce for search inputs
+
+export const PREDEFINED_STAGE_COLORS = [
+  '#8b5cf6', // violet
+  '#6366f1', // indigo
+  '#3b82f6', // blue
+  '#06b6d4', // cyan
+  '#10b981', // emerald
+  '#84cc16', // lime
+  '#f59e0b', // amber
+  '#f97316', // orange
+  '#d946ef', // fuchsia
+  '#e11d48', // rose
+  '#ef4444', // red
+  '#ec4899' // pink
+];

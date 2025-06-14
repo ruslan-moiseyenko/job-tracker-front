@@ -41,6 +41,7 @@ import {
   SheetTrigger
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { StageManagementDialog } from '@/dashboard/components/stage-management';
 import type { CompanyInputType } from '@/dashboard/dashboard.types';
 import { useCreateJobApplication } from '@/dashboard/hooks/useCreateJobApplication';
 import { useGetStages } from '@/dashboard/hooks/useGetStages';
@@ -348,30 +349,34 @@ export const AddNewApplication = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Application Stage *</FormLabel>
+
                     <Popover open={stageOpen} onOpenChange={setStageOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={stageOpen}
-                            className={cn(
-                              'justify-between w-fit min-w-fit',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                            disabled={loading || stagesLoading}
-                          >
-                            {selectedStage ? (
-                              <span className="flex items-center gap-2">
-                                {selectedStage.name}
-                              </span>
-                            ) : (
-                              'Select stage'
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
+                      <div className="flex items-center justify-between">
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={stageOpen}
+                              className={cn(
+                                'justify-between w-fit min-w-fit',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                              disabled={loading || stagesLoading}
+                            >
+                              {selectedStage ? (
+                                <span className="flex items-center gap-2">
+                                  {selectedStage.name}
+                                </span>
+                              ) : (
+                                'Select stage'
+                              )}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <StageManagementDialog />
+                      </div>
                       <PopoverContent className="w-full p-2">
                         <Command>
                           <CommandList>
