@@ -35,8 +35,8 @@ export function StageManagementDialog() {
     setIsAddingNew,
     handleDragEnd,
     handleAddStage,
-    handleEditStage,
-    handleSaveEdit,
+    handleStartEditingStage,
+    handleUpdateStage,
     handleDeleteStage,
     handleCancel
   } = useStageManagement();
@@ -127,7 +127,7 @@ export function StageManagementDialog() {
               <h4 className="font-medium mb-3">Edit Stage</h4>
               <StageForm
                 stage={editingStage}
-                onSave={handleSaveEdit}
+                onSave={handleUpdateStage}
                 onCancel={handleCancel}
                 loading={updateLoading}
               />
@@ -142,7 +142,7 @@ export function StageManagementDialog() {
             deleteLoading={deleteLoading}
             reorderLoading={reorderLoading}
             deletingStageId={deletingStageId}
-            onEdit={handleEditStage}
+            onEdit={handleStartEditingStage}
             onDelete={handleDeleteStage}
             onDragEnd={handleDragEnd}
           />

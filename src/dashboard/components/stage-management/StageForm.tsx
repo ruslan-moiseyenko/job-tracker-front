@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { X } from 'lucide-react';
 
@@ -12,7 +12,13 @@ import { cn } from '@/lib/utils';
 
 interface StageFormProps {
   stage?: ApplicationStageType;
-  onSave: (stage: Omit<ApplicationStageType, 'id' | 'order'>) => void;
+  onSave: (
+    stage: Omit<ApplicationStageType, 'id' | 'order'>,
+    changes?: {
+      hasChanges: boolean;
+      changedFields: Partial<Omit<ApplicationStageType, 'id' | 'order'>>;
+    }
+  ) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -26,6 +32,54 @@ export function StageForm({
   const [name, setName] = useState(stage?.name || '');
   const [description, setDescription] = useState(stage?.description || '');
   const [color, setColor] = useState(stage?.color || '');
+
+  // Track changes for editing mode
+  const hasChanges = useMemo(() => {
+    if (!stage) return true; // For new stages, always consider as having changes
+
+    const currentData = {
+      name: name.trim(),
+      description: description.trim() || '',
+      color: color.trim() || undefined
+    };
+
+    const originalData = {
+      name: stage.name,
+      description: stage.description || '',
+      color: stage.color || undefined
+    };
+
+    return (
+      currentData.name !== originalData.name ||
+      currentData.description !== originalData.description ||
+      currentData.color !== originalData.color
+    );
+  }, [stage, name, description, color]);
+
+  // Calculate only the changed fields
+  const changedFields = useMemo(() => {
+    if (!stage) return {}; // For new stages, we'll send all data
+
+    const changes: Partial<Omit<ApplicationStageType, 'id' | 'order'>> = {};
+
+    const currentName = name.trim();
+    const currentDescription = description.trim() || '';
+    const currentColor = color.trim() || undefined;
+
+    if (currentName !== stage.name) {
+      changes.name = currentName;
+    }
+
+    if (currentDescription !== (stage.description || '')) {
+      changes.description = currentDescription;
+    }
+
+    if (currentColor !== (stage.color || undefined)) {
+      changes.color = currentColor;
+    }
+
+    return changes;
+  }, [stage, name, description, color]);
 
   const handleHexInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -69,11 +123,19 @@ export function StageForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      onSave({
+      const stageData = {
         name: name.trim(),
         description: description.trim() || '',
         color: color.trim() || undefined // Send undefined if no color
-      });
+      };
+
+      // For editing existing stages, pass change tracking info
+      // For new stages, don't pass the second parameter
+      if (stage) {
+        onSave(stageData, { hasChanges, changedFields });
+      } else {
+        onSave(stageData);
+      }
     }
   };
 
@@ -156,7 +218,11 @@ export function StageForm({
       </div>
 
       <div className="flex gap-2 pt-2">
-        <Button type="submit" size="sm" disabled={loading}>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={loading || (stage && !hasChanges)}
+        >
           {stage ? 'Save Changes' : 'Add Stage'}
         </Button>
         <Button

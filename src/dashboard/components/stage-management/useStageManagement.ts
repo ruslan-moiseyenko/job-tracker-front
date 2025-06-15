@@ -126,20 +126,34 @@ export function useStageManagement() {
     }
   };
 
-  const handleEditStage = (stage: ApplicationStageType) => {
+  const handleStartEditingStage = (stage: ApplicationStageType) => {
     setEditingStage(stage);
   };
 
-  const handleSaveEdit = async (
-    stageData: Omit<ApplicationStageType, 'id' | 'order'>
+  const handleUpdateStage = async (
+    stageData: Omit<ApplicationStageType, 'id' | 'order'>,
+    changes?: {
+      hasChanges: boolean;
+      changedFields: Partial<Omit<ApplicationStageType, 'id' | 'order'>>;
+    }
   ) => {
     if (editingStage) {
-      const updatedStage = await updateStageAPI({
+      // Only make the API call if there are actual changes
+      if (!changes?.hasChanges) {
+        setEditingStage(null);
+        return;
+      }
+
+      // Use only the changed fields for the update
+      // The stageData parameter is kept for interface consistency but we prioritize changedFields
+      const updateData: { id: string } & Partial<
+        Omit<ApplicationStageType, 'id' | 'order'>
+      > = {
         id: editingStage.id,
-        name: stageData.name,
-        description: stageData.description,
-        color: stageData.color
-      });
+        ...changes.changedFields
+      };
+
+      const updatedStage = await updateStageAPI(updateData);
 
       if (updatedStage) {
         setEditingStage(null);
@@ -197,8 +211,8 @@ export function useStageManagement() {
     setIsAddingNew,
     handleDragEnd,
     handleAddStage,
-    handleEditStage,
-    handleSaveEdit,
+    handleStartEditingStage,
+    handleUpdateStage,
     handleDeleteStage,
     handleCancel
   };
