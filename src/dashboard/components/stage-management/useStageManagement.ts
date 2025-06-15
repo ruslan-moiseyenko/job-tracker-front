@@ -57,7 +57,11 @@ export function useStageManagement() {
   const [deletingStageId, setDeletingStageId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6 // Minimum distance to start dragging
+      }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates
     })

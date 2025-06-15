@@ -1,4 +1,5 @@
 import { closestCenter, DndContext } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   SortableContext,
   verticalListSortingStrategy
@@ -43,6 +44,7 @@ export function StageList({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis]}
         onDragEnd={onDragEnd}
       >
         <SortableContext items={stages} strategy={verticalListSortingStrategy}>
