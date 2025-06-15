@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Edit2, GripVertical, Trash2 } from 'lucide-react';
+import { Edit2, GripVertical, Loader2, Trash2 } from 'lucide-react';
 
 import {
   AlertDialog,
@@ -23,13 +23,15 @@ interface StageItemProps {
   onEdit: (stage: ApplicationStageType) => void;
   onDelete: (id: string) => void;
   isEditingDisabled: boolean;
+  isDeleting?: boolean;
 }
 
 export function SortableStageItem({
   stage,
   onEdit,
   onDelete,
-  isEditingDisabled
+  isEditingDisabled,
+  isDeleting = false
 }: StageItemProps) {
   const {
     attributes,
@@ -110,9 +112,13 @@ export function SortableStageItem({
                 'h-8 w-8 p-0 text-destructive hover:text-destructive',
                 isEditingDisabled && 'opacity-50 cursor-not-allowed'
               )}
-              disabled={isEditingDisabled}
+              disabled={isEditingDisabled || isDeleting}
             >
-              <Trash2 className="h-4 w-4" />
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>

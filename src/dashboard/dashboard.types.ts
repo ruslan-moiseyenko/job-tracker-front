@@ -24,7 +24,7 @@ export type ApplicationStageType = {
   name: string;
   description: string;
   order: number;
-  color: string;
+  color?: string;
 };
 
 export type CompanyInputType =

@@ -83,3 +83,66 @@ export const CREATE_JOB_APPLICATION_MUTATION = gql`
     }
   }
 `;
+
+export const DELETE_APPLICATION_STAGE_MUTATION = gql`
+  mutation deleteStage($id: String!) {
+    deleteApplicationStage(id: $id) {
+      id
+    }
+  }
+`;
+
+export const CREATE_APPLICATION_STAGE_MUTATION = gql`
+  mutation createApplicationStage(
+    $name: String!
+    $insertAfter: String
+    $description: String
+    $color: String
+  ) {
+    createApplicationStage(
+      input: {
+        name: $name
+        insertAfter: $insertAfter
+        description: $description
+        color: $color
+      }
+    ) {
+      name
+      id
+      description
+      color
+      order
+    }
+  }
+`;
+
+export const UPDATE_APPLICATION_STAGE_MUTATION = gql`
+  mutation updateApplicationStage(
+    $id: String!
+    $name: String
+    $description: String
+    $color: String
+  ) {
+    updateApplicationStage(
+      id: $id
+      input: { name: $name, description: $description, color: $color }
+    ) {
+      id
+      name
+      description
+      color
+    }
+  }
+`;
+
+export const REORDER_STAGE_MUTATION = gql`
+  mutation reorderStage($stageId: String!, $position: String!) {
+    reorderStage(input: { stageId: $stageId, position: $position }) {
+      id
+      name
+      description
+      color
+      order
+    }
+  }
+`;

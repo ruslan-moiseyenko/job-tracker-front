@@ -12,6 +12,9 @@ interface StageListProps {
   stages: ApplicationStageType[];
   sensors: any;
   isEditingDisabled: boolean;
+  deleteLoading: boolean;
+  reorderLoading?: boolean;
+  deletingStageId: string | null;
   onEdit: (stage: ApplicationStageType) => void;
   onDelete: (id: string) => void;
   onDragEnd: (event: any) => void;
@@ -21,15 +24,20 @@ export function StageList({
   stages,
   sensors,
   isEditingDisabled,
+  deleteLoading,
+  reorderLoading = false,
+  deletingStageId,
   onEdit,
   onDelete,
   onDragEnd
 }: StageListProps) {
+  const isDragDisabled = isEditingDisabled || reorderLoading;
   return (
     <div className="space-y-3">
       {stages.length > 0 && (
         <div className="text-sm text-muted-foreground">
           Current Stages (drag to reorder)
+          {reorderLoading && ' - Reordering...'}
         </div>
       )}
       <DndContext
@@ -45,7 +53,8 @@ export function StageList({
                 stage={stage}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                isEditingDisabled={isEditingDisabled}
+                isEditingDisabled={isDragDisabled || deleteLoading}
+                isDeleting={deletingStageId === stage.id}
               />
             ))}
           </div>

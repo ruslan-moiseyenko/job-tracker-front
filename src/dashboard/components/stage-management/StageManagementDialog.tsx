@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react';
+import { AlertCircle, Plus } from 'lucide-react';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,7 +22,16 @@ export function StageManagementDialog() {
     isAddingNew,
     isOpen,
     sensors,
-    setIsOpen,
+    deleteLoading,
+    deleteError,
+    createLoading,
+    createError,
+    updateLoading,
+    updateError,
+    reorderLoading,
+    reorderError,
+    deletingStageId,
+    handleDialogOpenChange,
     setIsAddingNew,
     handleDragEnd,
     handleAddStage,
@@ -32,7 +42,7 @@ export function StageManagementDialog() {
   } = useStageManagement();
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="ml-2">
           <Plus className="h-4 w-4 mr-2" />
@@ -50,6 +60,43 @@ export function StageManagementDialog() {
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Error display */}
+          {deleteError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to delete stage: {deleteError.message}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {createError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to create stage: {createError.message}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {updateError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to update stage: {updateError.message}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {reorderError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to reorder stage: {reorderError.message}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Add new stage button */}
           {!isAddingNew && !editingStage && (
             <Button
@@ -66,7 +113,11 @@ export function StageManagementDialog() {
           {isAddingNew && (
             <div className="p-4 border rounded-lg bg-muted/50">
               <h4 className="font-medium mb-3">Add New Stage</h4>
-              <StageForm onSave={handleAddStage} onCancel={handleCancel} />
+              <StageForm
+                onSave={handleAddStage}
+                onCancel={handleCancel}
+                loading={createLoading}
+              />
             </div>
           )}
 
@@ -78,6 +129,7 @@ export function StageManagementDialog() {
                 stage={editingStage}
                 onSave={handleSaveEdit}
                 onCancel={handleCancel}
+                loading={updateLoading}
               />
             </div>
           )}
@@ -87,6 +139,9 @@ export function StageManagementDialog() {
             stages={stages}
             sensors={sensors}
             isEditingDisabled={!!editingStage || isAddingNew}
+            deleteLoading={deleteLoading}
+            reorderLoading={reorderLoading}
+            deletingStageId={deletingStageId}
             onEdit={handleEditStage}
             onDelete={handleDeleteStage}
             onDragEnd={handleDragEnd}
