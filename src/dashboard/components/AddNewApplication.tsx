@@ -50,7 +50,7 @@ import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { cn } from '@/lib/utils';
 
-import { CompanyAutocomplete } from './CompanyAutocomplete';
+import { InputCompanyAutocomplete } from './InputCompanyAutocomplete';
 
 const applicationSchema = z.object({
   company: z
@@ -309,7 +309,7 @@ export const AddNewApplication = ({
                   <FormItem>
                     <FormLabel>Company *</FormLabel>
                     <FormControl>
-                      <CompanyAutocomplete
+                      <InputCompanyAutocomplete
                         value={field.value}
                         onChange={(selection) => {
                           field.onChange(selection);

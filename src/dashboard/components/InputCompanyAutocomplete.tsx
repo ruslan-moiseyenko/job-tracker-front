@@ -32,7 +32,7 @@ interface CompanyAutocompleteProps {
   className?: string;
 }
 
-export const CompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
+export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
   value,
   onChange,
   placeholder = 'Enter company name...',
