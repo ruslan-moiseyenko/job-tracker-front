@@ -11,9 +11,9 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 
+import { useStageManagement } from './hooks/useStageManagement';
 import { StageForm } from './StageForm';
 import { StageList } from './StageList';
-import { useStageManagement } from './useStageManagement';
 
 export function StageManagementDialog() {
   const {
