@@ -146,3 +146,39 @@ export const REORDER_STAGE_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_JOB_APPLICATION = gql`
+  mutation updateJobApplication(
+    $id: String!
+    $currentStageId: String
+    $customColor: String
+    $jobDescription: String
+    $positionTitle: String
+    $salary: Int
+    $companyId: String
+    $jobLinks: [String!]
+  ) {
+    updateJobApplication(
+      id: $id
+      input: {
+        companyId: $companyId
+        currentStageId: $currentStageId
+        customColor: $customColor
+        jobDescription: $jobDescription
+        jobLinks: $jobLinks
+        positionTitle: $positionTitle
+        salary: $salary
+      }
+    ) {
+      id
+      positionTitle
+      jobDescription
+      customColor
+      applicationDate
+      jobLinks
+      salary
+      updatedAt
+      createdAt
+    }
+  }
+`;

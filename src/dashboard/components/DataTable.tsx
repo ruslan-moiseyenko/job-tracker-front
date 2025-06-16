@@ -78,6 +78,9 @@ export function DataTable() {
       columnFilters,
       columnVisibility,
       rowSelection
+    },
+    meta: {
+      onStageUpdated: refetchApplications
     }
   });
 
@@ -94,7 +97,7 @@ export function DataTable() {
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center py-2 px-4 gap-2 justify-between">
+      <div className="flex items-center py-2 px-4 gap-2 mb-2 justify-between">
         <DataTableToolbar
           table={table}
           stageFilterOptions={stageFilterOptions}
@@ -134,7 +137,7 @@ export function DataTable() {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="bg-secondary">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
+import { CurrentStageSelectCell } from './components/CurrentStageSelectCell';
 import {
   type AllColumnKeys,
   APPLICATION_COLUMN_CONFIGS,
@@ -136,20 +137,8 @@ const generateDataColumn = (
       return {
         ...baseColumn,
         cell: ({ row }) => {
-          const stage = row.getValue(key) as {
-            id: string;
-            name: string;
-            order: number;
-            color: string;
-          };
-          return React.createElement(
-            'div',
-            {
-              className: 'capitalize',
-              style: { backgroundColor: stage?.color }
-            },
-            stage?.name
-          );
+          const application = row.original;
+          return React.createElement(CurrentStageSelectCell, { application });
         },
         filterFn: (row, id, value) => {
           const stage = row.getValue(id) as {
