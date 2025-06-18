@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { CurrentStageSelectCell } from './components/CurrentStageSelectCell';
+import { EditablePositionCell } from './components/EditablePositionCell';
+import { EditableSalaryCell } from './components/EditableSalaryCell';
 import {
   type AllColumnKeys,
   APPLICATION_COLUMN_CONFIGS,
@@ -176,28 +178,18 @@ const generateDataColumn = (
         header: () =>
           React.createElement('div', { className: 'text-right' }, config.label),
         cell: ({ row }) => {
-          const amount = parseFloat(row.getValue(key) as string);
-          const formatted = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-          }).format(amount || 0);
-          return React.createElement(
-            'div',
-            { className: 'text-right font-medium' },
-            formatted
-          );
+          const application = row.original;
+          return React.createElement(EditableSalaryCell, { application });
         }
       };
 
     case 'positionTitle':
       return {
         ...baseColumn,
-        cell: ({ row }) =>
-          React.createElement(
-            'div',
-            { className: 'capitalize' },
-            row.getValue(key)
-          )
+        cell: ({ row }) => {
+          const application = row.original;
+          return React.createElement(EditablePositionCell, { application });
+        }
       };
 
     case 'applicationDate':
