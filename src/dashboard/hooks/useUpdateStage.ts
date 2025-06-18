@@ -2,11 +2,8 @@ import { useMutation } from '@apollo/client';
 
 import { toast } from 'sonner';
 
-import {
-  GET_ALL_STAGES,
-  UPDATE_APPLICATION_STAGE_MUTATION
-} from '@/dashboard/dashboard.queries';
-import type { ApplicationStageType } from '@/dashboard/dashboard.types';
+import { createFragmentUtils } from '@/dashboard/graphql/cache-utils';
+import { UPDATE_APPLICATION_STAGE_MUTATION } from '@/dashboard/graphql/dashboard.queries';
 import { logger } from '@/lib/logger';
 
 interface UpdateStageInput {
@@ -31,33 +28,23 @@ export const useUpdateStage = () => {
         logger.error('Error updating stage:', error);
         toast.error('Failed to update stage. Please try again.');
       },
-      // Update cache to reflect the changes
+      // Update cache using fragment-based approach
       update(cache, { data }) {
         if (data?.updateApplicationStage) {
           try {
-            // Read the current getAllStages query from cache
-            const existingStages = cache.readQuery<{
-              getAllStages: ApplicationStageType[];
-            }>({
-              query: GET_ALL_STAGES
-            });
+            const fragmentUtils = createFragmentUtils(cache);
 
-            if (existingStages?.getAllStages) {
-              // Update the specific stage in the array
-              const updatedStages = existingStages.getAllStages.map((stage) =>
-                stage.id === data.updateApplicationStage.id
-                  ? { ...stage, ...data.updateApplicationStage }
-                  : stage
-              );
+            // Update the stage using fragment
+            const success = fragmentUtils.updateStage(
+              data.updateApplicationStage.id,
+              data.updateApplicationStage
+            );
 
-              // Write the updated list back to cache
-              cache.writeQuery({
-                query: GET_ALL_STAGES,
-                data: { getAllStages: updatedStages }
-              });
+            if (!success) {
+              logger.warn('Failed to update stage in cache, stage not found');
             }
           } catch (error) {
-            logger.error('Error updating cache after stage update:', error);
+            logger.error('Error updating stage cache:', error);
           }
         }
       }

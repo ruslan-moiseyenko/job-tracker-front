@@ -2,11 +2,7 @@ import { useMutation } from '@apollo/client';
 
 import { toast } from 'sonner';
 
-import {
-  DELETE_APPLICATION_STAGE_MUTATION,
-  GET_ALL_STAGES
-} from '@/dashboard/dashboard.queries';
-import type { ApplicationStageType } from '@/dashboard/dashboard.types';
+import { DELETE_APPLICATION_STAGE_MUTATION } from '@/dashboard/graphql/dashboard.queries';
 import { logger } from '@/lib/logger';
 
 export const useDeleteStage = () => {
@@ -23,28 +19,22 @@ export const useDeleteStage = () => {
       update(cache, { data }) {
         if (data?.deleteApplicationStage) {
           try {
-            // Read the current getAllStages query from cache
-            const existingStages = cache.readQuery<{
-              getAllStages: ApplicationStageType[];
-            }>({
-              query: GET_ALL_STAGES
+            // Remove the stage from cache using cache.evict for direct removal
+            const stageId = cache.identify({
+              __typename: 'ApplicationStageType',
+              id: data.deleteApplicationStage.id
             });
 
-            if (existingStages?.getAllStages) {
-              // Filter out the deleted stage
-              const updatedStages = existingStages.getAllStages.filter(
-                (stage) => stage.id !== data.deleteApplicationStage.id
-              );
+            if (stageId) {
+              // Evict the specific stage from cache
+              cache.evict({ id: stageId });
 
-              // Write the updated list back to cache
-              cache.writeQuery({
-                query: GET_ALL_STAGES,
-                data: { getAllStages: updatedStages }
-              });
+              // Clean up any dangling references
+              cache.gc();
             }
           } catch (error) {
             logger.error('Error updating cache after stage deletion:', error);
-            // Fallback: refetch if cache update fails
+            // Fallback: evict all stages to force refetch
             cache.evict({ fieldName: 'getAllStages' });
           }
         }

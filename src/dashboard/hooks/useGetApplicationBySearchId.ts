@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import { useQuery } from '@apollo/client';
 
-import { GET_APPLICATIONS_BY_SEARCH_ID } from '@/dashboard/dashboard.queries';
 import type { ApplicationType } from '@/dashboard/dashboard.types';
+import { GET_APPLICATIONS_BY_SEARCH_ID } from '@/dashboard/graphql/dashboard.queries';
 import { logger } from '@/lib/logger';
 
 export const useGetApplicationBySearchId = (

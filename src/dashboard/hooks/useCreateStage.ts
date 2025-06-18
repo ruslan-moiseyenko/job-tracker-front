@@ -2,10 +2,8 @@ import { useMutation } from '@apollo/client';
 
 import { toast } from 'sonner';
 
-import {
-  CREATE_APPLICATION_STAGE_MUTATION,
-  GET_ALL_STAGES
-} from '@/dashboard/dashboard.queries';
+import { createFragmentUtils } from '@/dashboard/graphql/cache-utils';
+import { CREATE_APPLICATION_STAGE_MUTATION } from '@/dashboard/graphql/dashboard.queries';
 import { logger } from '@/lib/logger';
 
 interface CreateStageInput {
@@ -30,23 +28,19 @@ export const useCreateStage = () => {
         logger.error('Error creating stage:', error);
         toast.error('Failed to create stage. Please try again.');
       },
-      // Update cache to add the new stage
+      // Update cache to add the new stage using fragment utilities
       update(cache, { data }) {
         if (data?.createApplicationStage) {
-          const existingStages = cache.readQuery({
-            query: GET_ALL_STAGES
-          });
+          const fragmentUtils = createFragmentUtils(cache);
 
-          if (existingStages) {
-            cache.writeQuery({
-              query: GET_ALL_STAGES,
-              data: {
-                getAllStages: [
-                  ...(existingStages as any).getAllStages,
-                  data.createApplicationStage
-                ]
-              }
-            });
+          // The mutation response contains the complete ApplicationStageFragment
+          const success = fragmentUtils.addStageToList(
+            data.createApplicationStage
+          );
+
+          if (!success) {
+            // Fallback: evict the cache to force refetch
+            fragmentUtils.evictQuery('getAllStages');
           }
         }
       }

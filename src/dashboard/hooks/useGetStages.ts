@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import { useQuery } from '@apollo/client';
 
-import { GET_ALL_STAGES } from '@/dashboard/dashboard.queries';
 import type { ApplicationStageType } from '@/dashboard/dashboard.types';
+import { GET_ALL_STAGES } from '@/dashboard/graphql/dashboard.queries';
 import { logger } from '@/lib/logger';
 
 export const useGetStages = () => {

@@ -1,41 +1,26 @@
 import { gql } from '@apollo/client';
 
+import {
+  APPLICATION_STAGE_FRAGMENT,
+  JOB_APPLICATION_FRAGMENT
+} from './fragments';
+
 export const GET_APPLICATIONS_BY_SEARCH_ID = gql`
   query getJobApplicationsBySearchId($jobSearchId: String!) {
     getJobApplicationsBySearchId(jobSearchId: $jobSearchId) {
-      id
-      company {
-        id
-        name
-      }
-      currentStage {
-        id
-        name
-        order
-        color
-      }
-      positionTitle
-      jobDescription
-      customColor
-      applicationDate
-      jobLinks
-      salary
-      updatedAt
-      createdAt
+      ...JobApplicationFragment
     }
   }
+  ${JOB_APPLICATION_FRAGMENT}
 `;
 
 export const GET_ALL_STAGES = gql`
   query getAllStages {
     getAllStages {
-      id
-      name
-      description
-      order
-      color
+      ...ApplicationStageFragment
     }
   }
+  ${APPLICATION_STAGE_FRAGMENT}
 `;
 
 export const CREATE_JOB_APPLICATION_MUTATION = gql`
@@ -61,27 +46,10 @@ export const CREATE_JOB_APPLICATION_MUTATION = gql`
         salary: $salary
       }
     ) {
-      id
-      positionTitle
-      jobDescription
-      customColor
-      applicationDate
-      jobLinks
-      salary
-      updatedAt
-      createdAt
-      company {
-        id
-        name
-      }
-      currentStage {
-        id
-        name
-        order
-        color
-      }
+      ...JobApplicationFragment
     }
   }
+  ${JOB_APPLICATION_FRAGMENT}
 `;
 
 export const DELETE_APPLICATION_STAGE_MUTATION = gql`
@@ -107,13 +75,10 @@ export const CREATE_APPLICATION_STAGE_MUTATION = gql`
         color: $color
       }
     ) {
-      name
-      id
-      description
-      color
-      order
+      ...ApplicationStageFragment
     }
   }
+  ${APPLICATION_STAGE_FRAGMENT}
 `;
 
 export const UPDATE_APPLICATION_STAGE_MUTATION = gql`
@@ -127,24 +92,19 @@ export const UPDATE_APPLICATION_STAGE_MUTATION = gql`
       id: $id
       input: { name: $name, description: $description, color: $color }
     ) {
-      id
-      name
-      description
-      color
+      ...ApplicationStageFragment
     }
   }
+  ${APPLICATION_STAGE_FRAGMENT}
 `;
 
 export const REORDER_STAGE_MUTATION = gql`
   mutation reorderStage($stageId: String!, $position: String!) {
     reorderStage(input: { stageId: $stageId, position: $position }) {
-      id
-      name
-      description
-      color
-      order
+      ...ApplicationStageFragment
     }
   }
+  ${APPLICATION_STAGE_FRAGMENT}
 `;
 
 export const UPDATE_JOB_APPLICATION = gql`
@@ -170,25 +130,8 @@ export const UPDATE_JOB_APPLICATION = gql`
         salary: $salary
       }
     ) {
-      id
-      company {
-        id
-        name
-      }
-      currentStage {
-        id
-        name
-        order
-        color
-      }
-      positionTitle
-      jobDescription
-      customColor
-      applicationDate
-      jobLinks
-      salary
-      updatedAt
-      createdAt
+      ...JobApplicationFragment
     }
   }
+  ${JOB_APPLICATION_FRAGMENT}
 `;
