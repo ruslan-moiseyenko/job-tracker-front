@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
+import { Plus, PlusCircle, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -10,13 +10,7 @@ import { z } from 'zod';
 import { useUserData } from '@/auth/hooks/useUserData';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList
-} from '@/components/ui/command';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -28,10 +22,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -48,7 +44,6 @@ import { useGetStages } from '@/dashboard/hooks/useGetStages';
 import { useApiLoading } from '@/hooks/useApiLoading';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
-import { cn } from '@/lib/utils';
 
 import { InputCompanyAutocomplete } from './InputCompanyAutocomplete';
 
@@ -58,10 +53,13 @@ const applicationSchema = z.object({
       id: z.string().optional(),
       name: z.string().min(1, 'Company name is required')
     })
-    .optional()
-    .refine((data) => data !== undefined, {
-      message: 'Company is required'
-    }),
+    .nullable()
+    .refine(
+      (data) => data !== null && data?.name && data.name.trim().length > 0,
+      {
+        message: 'Company is required'
+      }
+    ),
   positionTitle: z
     .string()
     .min(1, 'Position title is required')
@@ -93,14 +91,18 @@ export const AddNewApplication = ({
 }: AddNewApplicationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [urlInput, setUrlInput] = useState('');
-  const [stageOpen, setStageOpen] = useState(false);
+  const [showErrorSummary, setShowErrorSummary] = useState(true);
 
   const { userData } = useUserData();
-  const { stages, stageFilterOptions, loading: stagesLoading } = useGetStages();
-  const { createJobApplication } = useCreateJobApplication();
+  const { stages, loading: stagesLoading } = useGetStages();
+  const {
+    createJobApplication,
+    loading: mutationLoading,
+    error: mutationError
+  } = useCreateJobApplication();
 
-  const defaultValues = {
-    company: undefined,
+  const defaultValues: ApplicationFormData = {
+    company: null,
     positionTitle: '',
     stageId: '',
     jobDescription: '',
@@ -110,15 +112,19 @@ export const AddNewApplication = ({
 
   const form = useForm({
     resolver: zodResolver(applicationSchema),
-    defaultValues
+    defaultValues,
+    mode: 'onChange' // Validate on every change
   });
 
-  const { loading, execute } = useApiLoading({
+  const { loading: apiLoading, execute } = useApiLoading({
     useGlobalLoader: false,
     initialMessage: 'Creating application...',
     successMessage: 'Application created successfully!',
-    errorMessage: 'Failed to create application'
+    errorMessage: '' // Don't show generic error - we handle specific errors above
   });
+
+  // Combine loading states
+  const loading = apiLoading || mutationLoading;
 
   // Unsaved changes detection
   const { hasUnsavedChanges, resetForm } = useUnsavedChanges({
@@ -139,24 +145,66 @@ export const AddNewApplication = ({
         values.jobDescription && values.jobDescription.trim().length >= 10;
       const hasLinks = values.jobLinks && values.jobLinks.length > 0;
 
-      return hasCompany || hasPosition || hasDescription || hasLinks;
+      return !!(hasCompany || hasPosition || hasDescription || hasLinks);
     }
   });
 
   // Confirmation dialog
   const { dialog, showConfirmation } = useConfirmationDialog();
 
-  // Set default stage when stages are loaded
+  // Set default stage and handle fallback when selected stage is deleted
   useEffect(() => {
-    if (stages.length > 0 && !form.getValues('stageId')) {
+    if (stages.length > 0) {
+      const currentStageId = form.getValues('stageId');
       const firstStage = [...stages].sort((a, b) => a.order - b.order)[0];
-      form.setValue('stageId', firstStage.id);
+
+      // Set  default stage
+      if (!currentStageId) {
+        form.setValue('stageId', firstStage.id);
+        form.trigger('stageId');
+      }
+      // Scenario 2: Current selected stage no longer exists - fallback to first stage
+      else if (!stages.find((stage) => stage.id === currentStageId)) {
+        console.log(
+          'Selected stage no longer exists, falling back to:',
+          firstStage.name
+        );
+        form.setValue('stageId', firstStage.id);
+        form.trigger('stageId');
+      }
     }
   }, [stages, form]);
 
-  const selectedStage = stages.find(
-    (stage) => stage.id === form.watch('stageId')
-  );
+  // Handle specific GraphQL errors with user-friendly messages
+  useEffect(() => {
+    if (mutationError) {
+      console.error('GraphQL mutation error:', mutationError);
+
+      // Extract user-friendly error message
+      let userMessage = 'Failed to create application';
+
+      if (mutationError.graphQLErrors?.length > 0) {
+        const graphQLError = mutationError.graphQLErrors[0];
+        userMessage = graphQLError.message || userMessage;
+      } else if (mutationError.networkError) {
+        userMessage =
+          'Network error. Please check your connection and try again.';
+      }
+
+      // Show user-friendly error message
+      toast.error(userMessage);
+    }
+  }, [mutationError]);
+
+  // Reset error summary when form values change
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      // Show error summary again when form changes (in case user dismissed it)
+      setShowErrorSummary(true);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const addJobLink = () => {
     if (urlInput.trim()) {
@@ -194,9 +242,9 @@ export const AddNewApplication = ({
 
     const result = await execute(async () => {
       // Build company input based on whether it has an ID (existing) or not (new)
-      const companyInput: CompanyInputType = data.company.id
-        ? { existingCompanyId: data.company.id } // Existing company
-        : { newCompany: { name: data.company.name } }; // New company
+      const companyInput: CompanyInputType = data.company!.id
+        ? { existingCompanyId: data.company!.id } // Existing company
+        : { newCompany: { name: data.company!.name } }; // New company
 
       const response = await createJobApplication({
         variables: {
@@ -297,6 +345,55 @@ export const AddNewApplication = ({
           </SheetHeader>
 
           <Form {...form}>
+            {/* Error Summary */}
+            {showErrorSummary &&
+              (Object.keys(form.formState.errors).length > 0 ||
+                mutationError) && (
+                <Card className="border-destructive/50 bg-destructive/5 mt-4">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 text-destructive text-sm">
+                        Please fix the following issues:
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          // Clear form errors and hide error summary
+                          form.clearErrors();
+                          setShowErrorSummary(false);
+                        }}
+                        className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <ul className="list-disc list-inside space-y-1 text-sm text-destructive/90">
+                      {Object.entries(form.formState.errors).map(
+                        ([field, error]) => (
+                          <li key={field}>
+                            <span className="font-medium capitalize">
+                              {field}:
+                            </span>{' '}
+                            {error?.message}
+                          </li>
+                        )
+                      )}
+                      {mutationError && (
+                        <li>
+                          <span className="font-medium">Server Error:</span>{' '}
+                          {mutationError.graphQLErrors?.[0]?.message ||
+                            mutationError.networkError?.message ||
+                            'An unexpected error occurred'}
+                        </li>
+                      )}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 mt-6 p-4"
@@ -305,7 +402,7 @@ export const AddNewApplication = ({
               <FormField
                 control={form.control}
                 name="company"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>Company *</FormLabel>
                     <FormControl>
@@ -316,6 +413,7 @@ export const AddNewApplication = ({
                         }}
                         placeholder="e.g., Google, Microsoft, Apple"
                         disabled={loading}
+                        className={fieldState.error ? 'border-destructive' : ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -347,67 +445,52 @@ export const AddNewApplication = ({
                 control={form.control}
                 name="stageId"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Application Stage *</FormLabel>
-
-                    <Popover open={stageOpen} onOpenChange={setStageOpen}>
-                      <div className="flex items-center justify-between">
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              aria-expanded={stageOpen}
-                              className={cn(
-                                'justify-between w-fit min-w-fit',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                              disabled={loading || stagesLoading}
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Application Stage *</FormLabel>
+                      <StageManagementDialog />
+                    </div>
+                    <FormControl>
+                      <Select
+                        value={field.value || ''}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Trigger validation to immediately clear errors
+                          form.trigger('stageId');
+                        }}
+                        disabled={loading || stagesLoading}
+                      >
+                        <SelectTrigger
+                          className="capitalize"
+                          style={(() => {
+                            const selected = stages.find(
+                              (s) => s.id === field.value
+                            );
+                            return selected && selected.color
+                              ? { backgroundColor: selected.color }
+                              : undefined;
+                          })()}
+                        >
+                          <SelectValue placeholder="Select stage" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stages.map((stage) => (
+                            <SelectItem
+                              key={stage.id}
+                              value={stage.id}
+                              className="capitalize"
+                              style={
+                                field.value === stage.id && stage.color
+                                  ? { backgroundColor: stage.color }
+                                  : undefined
+                              }
                             >
-                              {selectedStage ? (
-                                <span className="flex items-center gap-2">
-                                  {selectedStage.name}
-                                </span>
-                              ) : (
-                                'Select stage'
-                              )}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <StageManagementDialog />
-                      </div>
-                      <PopoverContent className="w-full p-2">
-                        <Command>
-                          <CommandList>
-                            <CommandEmpty>No stages</CommandEmpty>
-                            <CommandGroup>
-                              {stageFilterOptions.map((stage) => (
-                                <CommandItem
-                                  value={stage.label}
-                                  key={stage.id}
-                                  onSelect={() => {
-                                    form.setValue('stageId', stage.id!);
-                                    setStageOpen(false);
-                                  }}
-                                  className="justify-start cursor-pointer"
-                                >
-                                  <Check
-                                    className={cn(
-                                      'mr-2 h-4 w-4',
-                                      stage.id === field.value
-                                        ? 'opacity-100'
-                                        : 'opacity-0'
-                                    )}
-                                  />
-                                  {stage.label}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                              {stage.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

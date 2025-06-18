@@ -8,49 +8,56 @@ export function useUpdateJobApplication() {
     {
       update(cache, { data }) {
         if (!data?.updateJobApplication) return;
-        const updated = data.updateJobApplication;
-        // Find all queries for job applications by search id in the cache
-        const cacheQueries = cache.extract();
-        Object.keys(cacheQueries).forEach((key) => {
-          if (key.startsWith('JobApplication:') && key.endsWith(updated.id)) {
-            // Directly update the application entity in the cache
+
+        const updatedApplication = data.updateJobApplication;
+
+        try {
+          const applicationId = cache.identify({
+            __typename: 'ApplicationType',
+            id: updatedApplication.id
+          });
+
+          if (applicationId) {
             cache.modify({
-              id: key,
+              id: applicationId,
               fields: {
                 currentStage() {
-                  return updated.currentStage;
+                  return updatedApplication.currentStage;
                 },
-                // Optionally update other fields if needed
+                company() {
+                  return updatedApplication.company;
+                },
                 positionTitle() {
-                  return updated.positionTitle;
+                  return updatedApplication.positionTitle;
                 },
                 jobDescription() {
-                  return updated.jobDescription;
+                  return updatedApplication.jobDescription;
                 },
                 customColor() {
-                  return updated.customColor;
+                  return updatedApplication.customColor;
                 },
                 jobLinks() {
-                  return updated.jobLinks;
+                  return updatedApplication.jobLinks;
                 },
                 salary() {
-                  return updated.salary;
+                  return updatedApplication.salary;
                 },
                 updatedAt() {
-                  return updated.updatedAt;
-                },
-                createdAt() {
-                  return updated.createdAt;
+                  return updatedApplication.updatedAt;
                 },
                 applicationDate() {
-                  return updated.applicationDate;
+                  return updatedApplication.applicationDate;
                 }
               }
             });
           }
-        });
+        } catch (error) {
+          console.error('Error updating job application cache:', error);
+          // Apollo's automatic cache update will still work as fallback
+        }
       }
     }
   );
+
   return { updateJobApplication, loading, error, data };
 }

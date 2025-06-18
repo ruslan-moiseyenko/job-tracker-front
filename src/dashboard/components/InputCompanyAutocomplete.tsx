@@ -16,13 +16,10 @@ import {
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { cn } from '@/lib/utils';
 
-export type CompanySelection =
-  | {
-      id?: string; // If present, it's an existing company
-      name: string; // Company name (always present)
-    }
-  | null
-  | undefined;
+export type CompanySelection = {
+  id?: string; // If present, it's an existing company
+  name: string; // Company name (always present)
+} | null;
 
 interface CompanyAutocompleteProps {
   value?: CompanySelection;
@@ -57,7 +54,7 @@ export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
     // Only sync if the value is different AND we're not currently editing
     if (value?.name !== undefined && value.name !== inputValue) {
       setInputValue(value.name);
-    } else if (value === undefined || value === null) {
+    } else if (value === null) {
       setInputValue('');
     }
   }, [value?.name]); // Only depend on the name property
@@ -67,7 +64,7 @@ export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
 
     if (newValue.trim() === '') {
       setSearchTerm('');
-      onChange(undefined);
+      onChange(null);
       setOpen(false);
     } else {
       onChange({ name: newValue.trim() });
@@ -96,7 +93,7 @@ export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
   );
 
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className="relative">
       <div className="relative">
         <Input
           ref={inputRef}
@@ -107,7 +104,8 @@ export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
           disabled={disabled}
           className={cn(
             'pr-8',
-            value?.id && 'border-green-500 bg-green-50' // Existing company styling
+            value?.id && 'border-green-500 bg-green-50', // Existing company styling
+            className // This will include error styling passed from parent
           )}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">

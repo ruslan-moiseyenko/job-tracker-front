@@ -171,6 +171,16 @@ export const UPDATE_JOB_APPLICATION = gql`
       }
     ) {
       id
+      company {
+        id
+        name
+      }
+      currentStage {
+        id
+        name
+        order
+        color
+      }
       positionTitle
       jobDescription
       customColor
