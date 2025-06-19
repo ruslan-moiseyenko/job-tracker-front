@@ -39,6 +39,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { StageManagementDialog } from '@/dashboard/components/stage-management';
 import type { CompanyInputType } from '@/dashboard/dashboard.types';
+import { useCachedCompanySearch } from '@/dashboard/hooks/useCachedCompanySearch';
 import { useCreateJobApplication } from '@/dashboard/hooks/useCreateJobApplication';
 import { useGetStages } from '@/dashboard/hooks/useGetStages';
 import { useApiLoading } from '@/hooks/useApiLoading';
@@ -95,6 +96,7 @@ export const AddNewApplication = ({
 
   const { userData } = useUserData();
   const { stages, loading: stagesLoading } = useGetStages();
+  const { findExactCompanyMatch } = useCachedCompanySearch();
   const {
     createJobApplication,
     loading: mutationLoading,
@@ -241,10 +243,28 @@ export const AddNewApplication = ({
     }
 
     const result = await execute(async () => {
-      // Build company input based on whether it has an ID (existing) or not (new)
-      const companyInput: CompanyInputType = data.company!.id
-        ? { existingCompanyId: data.company!.id } // Existing company
-        : { newCompany: { name: data.company!.name } }; // New company
+      // Check if company is marked as new (no ID) but exists in cache
+      let companyInput: CompanyInputType;
+
+      if (data.company!.id) {
+        // Company already has an ID - treat as existing
+        companyInput = { existingCompanyId: data.company!.id };
+      } else {
+        // Company has no ID - check if it exists in cache (case insensitive)
+        const cachedCompany = findExactCompanyMatch(data.company!.name?.trim());
+
+        if (cachedCompany) {
+          // Found exact match in cache - treat as existing company
+          companyInput = { existingCompanyId: cachedCompany.id };
+          console.log(
+            `Found cached company match: "${cachedCompany.name}" (ID: ${cachedCompany.id})`
+          );
+        } else {
+          // No match found - create new company
+          companyInput = { newCompany: { name: data.company!.name } };
+          console.log(`Creating new company: "${data.company!.name}"`);
+        }
+      }
 
       const response = await createJobApplication({
         variables: {
@@ -345,54 +365,36 @@ export const AddNewApplication = ({
           </SheetHeader>
 
           <Form {...form}>
-            {/* Error Summary */}
-            {showErrorSummary &&
-              (Object.keys(form.formState.errors).length > 0 ||
-                mutationError) && (
-                <Card className="border-destructive/50 bg-destructive/5 mt-4">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-destructive text-sm">
-                        Please fix the following issues:
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          // Clear form errors and hide error summary
-                          form.clearErrors();
-                          setShowErrorSummary(false);
-                        }}
-                        className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <ul className="list-disc list-inside space-y-1 text-sm text-destructive/90">
-                      {Object.entries(form.formState.errors).map(
-                        ([field, error]) => (
-                          <li key={field}>
-                            <span className="font-medium capitalize">
-                              {field}:
-                            </span>{' '}
-                            {error?.message}
-                          </li>
-                        )
-                      )}
-                      {mutationError && (
-                        <li>
-                          <span className="font-medium">Server Error:</span>{' '}
-                          {mutationError.graphQLErrors?.[0]?.message ||
-                            mutationError.networkError?.message ||
-                            'An unexpected error occurred'}
-                        </li>
-                      )}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
+            {/* Error Summary - Server Errors Only */}
+            {showErrorSummary && mutationError && (
+              <Card className="border-destructive/50 bg-destructive/5">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center text-destructive text-sm">
+                      Error:
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        // Hide error summary
+                        setShowErrorSummary(false);
+                      }}
+                      className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="text-sm text-destructive/90">
+                    {mutationError.graphQLErrors?.[0]?.message ||
+                      mutationError.networkError?.message ||
+                      'An unexpected error occurred'}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -446,10 +448,8 @@ export const AddNewApplication = ({
                 name="stageId"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>Application Stage *</FormLabel>
-                      <StageManagementDialog />
-                    </div>
+                    <FormLabel>Application Stage *</FormLabel>
+
                     <FormControl>
                       <Select
                         value={field.value || ''}
@@ -460,19 +460,22 @@ export const AddNewApplication = ({
                         }}
                         disabled={loading || stagesLoading}
                       >
-                        <SelectTrigger
-                          className="capitalize"
-                          style={(() => {
-                            const selected = stages.find(
-                              (s) => s.id === field.value
-                            );
-                            return selected && selected.color
-                              ? { backgroundColor: selected.color }
-                              : undefined;
-                          })()}
-                        >
-                          <SelectValue placeholder="Select stage" />
-                        </SelectTrigger>
+                        <div className="flex items-center justify-between">
+                          <SelectTrigger
+                            className="capitalize"
+                            style={(() => {
+                              const selected = stages.find(
+                                (s) => s.id === field.value
+                              );
+                              return selected && selected.color
+                                ? { backgroundColor: selected.color }
+                                : undefined;
+                            })()}
+                          >
+                            <SelectValue placeholder="Select stage" />
+                          </SelectTrigger>
+                          <StageManagementDialog />
+                        </div>
                         <SelectContent>
                           {stages.map((stage) => (
                             <SelectItem

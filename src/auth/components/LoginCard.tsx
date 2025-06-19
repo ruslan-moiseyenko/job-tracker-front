@@ -3,11 +3,11 @@ import type { ComponentPropsWithoutRef, FC, PropsWithChildren } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import type { ILoginInput } from '@/auth/types';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import type { ILoginInput } from '@/auth/types';
 import { ColoredNavLink } from '@/components/common/ColoredNavLink';
 import { PasswordInput } from '@/components/common/PasswordInput';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
 import { cn } from '@/lib/utils';
 
 import {

@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
 
+import { useLoadingContext } from '@/components/ui/LoadingContext';
 import {
   BROADCAST_CHANNEL_MESSAGE,
   BROADCAST_CHANNEL_NAME
 } from '@/routes/_auth/login';
-
-import { useLoadingContext } from '@/components/ui/LoadingContext';
 
 export const Route = createFileRoute('/_auth/oauth-redirect')({
   component: OAuthRedirect

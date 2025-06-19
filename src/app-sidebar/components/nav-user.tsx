@@ -1,7 +1,5 @@
 'use client';
 
-import { useAuth } from '@/auth/components/AuthContext';
-import type { User } from '@/auth/types';
 import {
   BadgeCheck,
   Bell,
@@ -11,6 +9,8 @@ import {
   Sparkles
 } from 'lucide-react';
 
+import { useAuth } from '@/auth/components/AuthContext';
+import type { User } from '@/auth/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,

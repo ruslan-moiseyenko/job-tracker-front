@@ -81,6 +81,10 @@ export const InputCompanyAutocomplete: React.FC<CompanyAutocompleteProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      // Close suggestions when Tab is pressed
+      setOpen(false);
+    }
     if (e.key === 'Enter') {
       e.preventDefault();
       setOpen(false); // Just close dropdown on Enter
