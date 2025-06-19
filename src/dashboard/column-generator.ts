@@ -15,9 +15,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
+import { CompanyCell } from './components/CompanyCell';
 import { CurrentStageSelectCell } from './components/CurrentStageSelectCell';
+import { DescriptionCell } from './components/DescriptionCell';
 import { EditablePositionCell } from './components/EditablePositionCell';
 import { EditableSalaryCell } from './components/EditableSalaryCell';
+import { JobLinksCell } from './components/JobLinksCell';
 import {
   type AllColumnKeys,
   APPLICATION_COLUMN_CONFIGS,
@@ -123,11 +126,7 @@ const generateDataColumn = (
             id: string;
             name: string;
           };
-          return React.createElement(
-            'div',
-            { className: 'capitalize' },
-            company?.name
-          );
+          return React.createElement(CompanyCell, { company });
         },
         filterFn: (row, id, value) => {
           const company = row.getValue(id) as { id: string; name: string };
@@ -158,17 +157,7 @@ const generateDataColumn = (
         ...baseColumn,
         cell: ({ row }) => {
           const links = row.getValue(key) as string[];
-          return links && links.length > 0
-            ? React.createElement(
-                'a',
-                {
-                  href: links[0],
-                  target: '_blank',
-                  rel: 'noreferrer'
-                },
-                String(links[0].slice(0, 15) + '...')
-              )
-            : null;
+          return React.createElement(JobLinksCell, { links });
         }
       };
 
@@ -189,6 +178,19 @@ const generateDataColumn = (
         cell: ({ row }) => {
           const application = row.original;
           return React.createElement(EditablePositionCell, { application });
+        }
+      };
+
+    case 'jobDescription':
+      return {
+        ...baseColumn,
+        cell: ({ row }) => {
+          const description = row.getValue(key) as string;
+          return React.createElement(DescriptionCell, { description });
+        },
+        filterFn: (row, id, value) => {
+          const description = row.getValue(id) as string;
+          return description?.toLowerCase().includes(value.toLowerCase());
         }
       };
 

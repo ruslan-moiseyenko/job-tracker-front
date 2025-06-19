@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { StageManagementDialog } from '@/dashboard/components/stage-management';
+import { FIELD_LIMITS } from '@/dashboard/dashboard.constants';
 import type { CompanyInputType } from '@/dashboard/dashboard.types';
 import { useCachedCompanySearch } from '@/dashboard/hooks/useCachedCompanySearch';
 import { useCreateJobApplication } from '@/dashboard/hooks/useCreateJobApplication';
@@ -64,11 +65,17 @@ const applicationSchema = z.object({
   positionTitle: z
     .string()
     .min(1, 'Position title is required')
-    .max(100, 'Position title must be less than 100 characters'),
+    .max(
+      FIELD_LIMITS.POSITION_TITLE_MAX_LENGTH,
+      `Position title must be less than ${FIELD_LIMITS.POSITION_TITLE_MAX_LENGTH} characters`
+    ),
   stageId: z.string().min(1, 'Stage is required'),
   jobDescription: z
     .string()
-    .max(2000, 'Job description must be less than 2000 characters')
+    .max(
+      FIELD_LIMITS.JOB_DESCRIPTION_MAX_LENGTH,
+      `Job description must be less than ${FIELD_LIMITS.JOB_DESCRIPTION_MAX_LENGTH} characters`
+    )
     .optional()
     .or(z.literal('')),
   jobLinks: z.array(z.string().url('Invalid URL format')),
@@ -427,19 +434,40 @@ export const AddNewApplication = ({
               <FormField
                 control={form.control}
                 name="positionTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Position Title *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g., Senior Frontend Developer"
-                        {...field}
-                        disabled={loading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentLength = field.value?.length || 0;
+                  const maxLength = FIELD_LIMITS.POSITION_TITLE_MAX_LENGTH;
+                  const isOverLimit = currentLength > maxLength;
+                  const isNearLimit =
+                    currentLength > maxLength * FIELD_LIMITS.WARNING_THRESHOLD;
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Position Title *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Senior Frontend Developer"
+                          {...field}
+                          disabled={loading}
+                        />
+                      </FormControl>
+                      <div className="flex justify-between items-center text-xs">
+                        <FormMessage />
+                        <span
+                          className={`${
+                            isOverLimit
+                              ? 'text-destructive font-medium'
+                              : isNearLimit
+                                ? 'text-chart-3 font-medium'
+                                : 'text-muted-foreground'
+                          }`}
+                        >
+                          {currentLength} / {maxLength} characters
+                        </span>
+                      </div>
+                    </FormItem>
+                  );
+                }}
               />
 
               {/* Application Stage */}
@@ -503,20 +531,42 @@ export const AddNewApplication = ({
               <FormField
                 control={form.control}
                 name="jobDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Job Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter job description, requirements, responsibilities..."
-                        className="min-h-[100px]"
-                        {...field}
-                        disabled={loading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentLength = field.value?.length || 0;
+                  const maxLength = FIELD_LIMITS.JOB_DESCRIPTION_MAX_LENGTH;
+                  const isOverLimit = currentLength > maxLength;
+                  const isNearLimit =
+                    currentLength > maxLength * FIELD_LIMITS.WARNING_THRESHOLD;
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Job Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter job description, requirements, responsibilities..."
+                          className="min-h-[100px]"
+                          {...field}
+                          disabled={loading}
+                        />
+                      </FormControl>
+                      <div className="flex justify-between items-center text-xs">
+                        <FormMessage />
+                        <span
+                          className={`${
+                            isOverLimit
+                              ? 'text-destructive font-medium'
+                              : isNearLimit
+                                ? 'text-chart-3 font-medium'
+                                : 'text-muted-foreground'
+                          }`}
+                        >
+                          {currentLength.toLocaleString()} /{' '}
+                          {maxLength.toLocaleString()} characters
+                        </span>
+                      </div>
+                    </FormItem>
+                  );
+                }}
               />
 
               {/* Job Links */}

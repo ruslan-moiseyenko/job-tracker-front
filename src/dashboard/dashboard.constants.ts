@@ -192,3 +192,18 @@ export const PREDEFINED_STAGE_COLORS = [
   '#ef4444', // red
   '#ec4899' // pink
 ];
+
+// Field validation constants
+export const FIELD_LIMITS = {
+  POSITION_TITLE_MAX_LENGTH: 100,
+  JOB_DESCRIPTION_MAX_LENGTH: 5000,
+  WARNING_THRESHOLD: 0.9 // 90% of max length triggers warning
+} as const;
+
+// Display truncation constants
+export const DISPLAY_LIMITS = {
+  POSITION_TITLE_DISPLAY_LENGTH: 20,
+  DESCRIPTION_PREVIEW_LENGTH: 15,
+  JOB_LINKS_DISPLAY_LENGTH: 20,
+  COMPANY_NAME_DISPLAY_LENGTH: 25
+} as const;

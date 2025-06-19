@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
+import { DISPLAY_LIMITS } from '../dashboard.constants';
 import type { ApplicationType } from '../dashboard.types';
 import { useUpdateJobApplication } from '../hooks/useUpdateJobApplication';
 
@@ -16,6 +23,24 @@ export function EditablePositionCell({
   const [value, setValue] = useState(application.positionTitle || '');
   const { updateJobApplication, loading } = useUpdateJobApplication();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const truncateText = (text: string, maxLength: number): string => {
+    if (!text) return text;
+
+    // Only truncate if the text is actually longer than maxLength + 3 (for "...")
+    // This ensures we only truncate when it actually saves space
+    if (text.length <= maxLength + 3) return text;
+
+    return text.substring(0, maxLength).trim() + '...';
+  };
+
+  const truncatedTitle = truncateText(
+    application.positionTitle || '',
+    DISPLAY_LIMITS.POSITION_TITLE_DISPLAY_LENGTH
+  );
+  const shouldShowTooltip =
+    (application.positionTitle || '').length >
+    DISPLAY_LIMITS.POSITION_TITLE_DISPLAY_LENGTH + 3;
 
   useEffect(() => {
     setValue(application.positionTitle || '');
@@ -79,13 +104,28 @@ export function EditablePositionCell({
     );
   }
 
-  return (
+  const renderCell = () => (
     <div
       className="capitalize cursor-pointer hover:bg-muted/50 rounded px-2 py-1 min-h-[2rem] flex items-center"
       onClick={() => setIsEditing(true)}
-      title="Click to edit"
+      title={shouldShowTooltip ? undefined : 'Click to edit'}
     >
-      {application.positionTitle || 'Click to edit'}
+      {truncatedTitle || 'Click to edit'}
     </div>
   );
+
+  if (shouldShowTooltip) {
+    return (
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>{renderCell()}</TooltipTrigger>
+          <TooltipContent>
+            <p>{application.positionTitle}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return renderCell();
 }
