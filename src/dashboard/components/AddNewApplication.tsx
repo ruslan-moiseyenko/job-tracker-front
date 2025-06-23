@@ -490,7 +490,7 @@ export const AddNewApplication = ({
                       >
                         <div className="flex items-center justify-between">
                           <SelectTrigger
-                            className="capitalize"
+                            className="capitalize [&_svg]:!text-foreground [&_svg]:!opacity-100"
                             style={(() => {
                               const selected = stages.find(
                                 (s) => s.id === field.value

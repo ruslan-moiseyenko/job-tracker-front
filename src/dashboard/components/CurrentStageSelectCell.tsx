@@ -47,7 +47,7 @@ export const CurrentStageSelectCell: React.FC<CurrentStageSelectCellProps> = ({
       disabled={loading}
     >
       <SelectTrigger
-        className="capitalize w-full"
+        className="capitalize w-full [&_svg]:!text-foreground [&_svg]:!opacity-100"
         style={(() => {
           const selected = stages.find((s) => s.id === selectedStageId);
           return selected && selected.color
