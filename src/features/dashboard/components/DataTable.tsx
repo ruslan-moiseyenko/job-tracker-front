@@ -1,0 +1,225 @@
+import { useState } from 'react';
+
+import {
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+  type VisibilityState
+} from '@tanstack/react-table';
+
+import { ChevronDown } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { LocalLoadingOverlay } from '@/components/ui/LocalLoadingOverlay';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { useUserData } from '@/features/auth/hooks/useUserData';
+import { generateStandardColumns } from '@/features/dashboard/column-generator';
+import { AddNewApplication } from '@/features/dashboard/components/AddNewApplication';
+import { DataTableToolbar } from '@/features/dashboard/components/DataTableToolbar';
+import { useGetApplicationBySearchId } from '@/features/dashboard/hooks/useGetApplicationBySearchId';
+import { useGetStages } from '@/features/dashboard/hooks/useGetStages';
+
+export function DataTable() {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    updatedAt: false, // Hidden by default
+    jobDescription: false
+  });
+  const [rowSelection, setRowSelection] = useState({});
+
+  const { userData } = useUserData();
+
+  const { stageFilterOptions, loading: stagesLoading } = useGetStages();
+
+  const {
+    applications,
+    loading: appsLoading,
+    error,
+    refetch: refetchApplications
+  } = useGetApplicationBySearchId(userData?.lastActiveSearchId);
+
+  const loading = stagesLoading || appsLoading;
+
+  // Generate columns using the new type-safe approach
+  const columns = generateStandardColumns();
+
+  const table = useReactTable({
+    data: applications,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection
+    },
+    meta: {
+      onStageUpdated: refetchApplications
+    }
+  });
+
+  if (error) {
+    return (
+      <div className="w-full flex items-center justify-center h-[400px] text-center">
+        <div>
+          <p className="text-destructive mb-2">Failed to load dashboard data</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full">
+      <div className="flex items-center py-2 px-4 gap-2 mb-2 justify-between">
+        <DataTableToolbar
+          table={table}
+          stageFilterOptions={stageFilterOptions}
+        />
+
+        <div className="flex items-center gap-2">
+          <AddNewApplication onApplicationCreated={refetchApplications} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="select-none ">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="bg-secondary">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
+      {/* Local loading overlay - shows over existing content */}
+      <LocalLoadingOverlay
+        isLoading={loading}
+        message={
+          stagesLoading && appsLoading
+            ? 'Loading data...'
+            : stagesLoading
+              ? 'Loading stages...'
+              : 'Loading applications...'
+        }
+        variant="spinner"
+      />
+    </div>
+  );
+}

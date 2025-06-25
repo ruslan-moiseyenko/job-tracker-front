@@ -1,6 +1,7 @@
 import { createRouter } from '@tanstack/react-router';
 
-import { createAuthInstance } from './auth/client.ts';
+import { createAuthInstance } from '@/features/auth/client.ts';
+
 import { routeTree } from './routeTree.gen.ts';
 
 // Create auth instance

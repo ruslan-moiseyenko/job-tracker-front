@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { logger as sentryLogger } from '@sentry/react';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
-import { LoginCard } from '@/auth/components/LoginCard';
-import type { OAuthProvider } from '@/auth/components/OAuthProviderButtons';
-import { GoogleIcon } from '@/auth/components/OAuthProviderIcons';
-import { useGoogleAuthPopup } from '@/auth/hooks/useGoogleAuthPopup';
-import type { ILoginInput } from '@/auth/types';
+import { LoginCard } from '@/features/auth/components/LoginCard';
+import type { OAuthProvider } from '@/features/auth/components/OAuthProviderButtons';
+import { GoogleIcon } from '@/features/auth/components/OAuthProviderIcons';
+import { useGoogleAuthPopup } from '@/features/auth/hooks/useGoogleAuthPopup';
+import type { ILoginInput } from '@/features/auth/types';
 import { IS_LOGGED_OUT_KEY } from '@/graphql/local-storage-keys';
 import { logger } from '@/lib/logger';
 
@@ -73,7 +73,7 @@ function LoginPage() {
           event.data.success
         ) {
           // Verify authentication with server and navigate
-          auth.checkAuth().then((isAuthenticated) => {
+          auth.checkAuth().then((isAuthenticated: boolean) => {
             if (isAuthenticated) {
               navigate({ to: '/dashboard' });
             }

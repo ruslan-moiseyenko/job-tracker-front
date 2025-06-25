@@ -1,8 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { GET_ME_QUERY } from '@/auth/queries';
-import type { IMeQueryResponse } from '@/auth/types';
+import { GET_ME_QUERY } from '@/features/auth/queries';
+import type { IMeQueryResponse } from '@/features/auth/types';
 
 export const Route = createFileRoute('/_protected/panel')({
   component: PanelPage

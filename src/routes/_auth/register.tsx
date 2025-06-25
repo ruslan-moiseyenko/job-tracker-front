@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
-import { RegistrationCard } from '@/auth/components/RegistrationCard';
-import type { IRegisterInput } from '@/auth/types';
+import { RegistrationCard } from '@/features/auth/components/RegistrationCard';
+import type { IRegisterInput } from '@/features/auth/types';
 
 export const Route = createFileRoute('/_auth/register')({
   beforeLoad: ({ context }) => {

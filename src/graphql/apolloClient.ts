@@ -8,11 +8,10 @@ import { ApolloLink } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
-import type { RefreshTokenResponse } from '@/auth/types';
+import { REFRESH_TOKEN } from '@/features/auth/queries';
+import type { RefreshTokenResponse } from '@/features/auth/types';
 import { IS_LOGGED_OUT_KEY } from '@/graphql/local-storage-keys';
 import { logger } from '@/lib/logger';
-
-import { REFRESH_TOKEN } from '../auth/queries';
 
 // Check if we're running in a browser environment
 const isBrowser = typeof window !== 'undefined';
