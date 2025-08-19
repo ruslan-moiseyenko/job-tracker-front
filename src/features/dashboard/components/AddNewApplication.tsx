@@ -363,7 +363,7 @@ export const AddNewApplication = ({
             New application
           </Button>
         </SheetTrigger>
-        <SheetContent className="sm:max-w-[600px] overflow-y-auto">
+        <SheetContent className="w-full sm:w-[40rem] min-w-[40rem] overflow-y-auto overflow-x-hidden">
           <SheetHeader>
             <SheetTitle>Add New Job Application</SheetTitle>
             <SheetDescription>
@@ -405,7 +405,7 @@ export const AddNewApplication = ({
 
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 mt-6 p-4"
+              className="space-y-6 mt-6 p-4 min-w-0"
             >
               {/* Company */}
               <FormField
@@ -422,7 +422,7 @@ export const AddNewApplication = ({
                         }}
                         placeholder="e.g., Google, Microsoft, Apple"
                         disabled={loading}
-                        className={fieldState.error ? 'border-destructive' : ''}
+                        className={`w-full min-w-0 ${fieldState.error ? 'border-destructive' : ''}`}
                       />
                     </FormControl>
                     <FormMessage />
@@ -446,6 +446,7 @@ export const AddNewApplication = ({
                       <FormLabel>Position Title *</FormLabel>
                       <FormControl>
                         <Input
+                          className="w-full min-w-0"
                           placeholder="e.g., Senior Frontend Developer"
                           {...field}
                           disabled={loading}
@@ -488,9 +489,9 @@ export const AddNewApplication = ({
                         }}
                         disabled={loading || stagesLoading}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
                           <SelectTrigger
-                            className="capitalize [&_svg]:!text-foreground [&_svg]:!opacity-100"
+                            className="flex-1 capitalize [&_svg]:!text-foreground [&_svg]:!opacity-100"
                             style={(() => {
                               const selected = stages.find(
                                 (s) => s.id === field.value
@@ -544,7 +545,7 @@ export const AddNewApplication = ({
                       <FormControl>
                         <Textarea
                           placeholder="Enter job description, requirements, responsibilities..."
-                          className="min-h-[100px]"
+                          className="min-h-[100px] w-full min-w-0 resize-none"
                           {...field}
                           disabled={loading}
                         />
@@ -572,8 +573,9 @@ export const AddNewApplication = ({
               {/* Job Links */}
               <div className="space-y-3">
                 <Label>Job Links</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 min-w-0">
                   <Input
+                    className="flex-1 min-w-0"
                     placeholder="https://company.com/jobs/123"
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
@@ -628,6 +630,7 @@ export const AddNewApplication = ({
                     <FormLabel>Salary (Optional)</FormLabel>
                     <FormControl>
                       <Input
+                        className="w-full min-w-0"
                         type="number"
                         placeholder="e.g., 150000"
                         {...field}
@@ -641,16 +644,21 @@ export const AddNewApplication = ({
                 )}
               />
 
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleClose}
                   disabled={loading}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading || stagesLoading}>
+                <Button
+                  type="submit"
+                  disabled={loading || stagesLoading}
+                  className="w-full sm:w-auto"
+                >
                   {loading ? 'Creating...' : 'Create Application'}
                 </Button>
               </div>

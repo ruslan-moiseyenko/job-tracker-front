@@ -9,9 +9,26 @@ import { gql } from '@apollo/client';
  * Used in: job applications, company search, company creation
  */
 export const COMPANY_FRAGMENT = gql`
-  fragment CompanyFragment on CompanyType {
+  fragment CompanyFragment on Company {
     id
     name
+    isBlacklisted
+    isFavorite
+  }
+`;
+
+/**
+ * Company details fragment - contains full company fields used for viewing/editing
+ */
+export const COMPANY_DETAILS_FRAGMENT = gql`
+  fragment CompanyDetailsFragment on Company {
+    id
+    name
+    website
+    description
+    companyNote
+    isBlacklisted
+    isFavorite
   }
 `;
 
@@ -65,9 +82,22 @@ export const JOB_APPLICATION_FRAGMENT = gql`
 // =============================================================================
 
 export interface CompanyFragment {
-  __typename: 'CompanyType';
+  __typename: 'Company';
   id: string;
   name: string;
+  isFavorite: boolean;
+  isBlacklisted: boolean;
+}
+
+export interface CompanyDetailsFragment {
+  __typename: 'Company';
+  id: string;
+  name: string;
+  website: string | null;
+  description: string | null;
+  companyNote: string | null;
+  isBlacklisted: boolean;
+  isFavorite: boolean;
 }
 
 export interface ApplicationStageFragment {

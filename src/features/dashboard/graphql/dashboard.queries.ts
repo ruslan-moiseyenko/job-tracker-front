@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 
 import {
   APPLICATION_STAGE_FRAGMENT,
+  COMPANY_DETAILS_FRAGMENT,
   JOB_APPLICATION_FRAGMENT
 } from './fragments';
 
@@ -21,6 +22,42 @@ export const GET_ALL_STAGES = gql`
     }
   }
   ${APPLICATION_STAGE_FRAGMENT}
+`;
+
+export const GET_COMPANY = gql`
+  query getCompanyById($id: String!) {
+    getCompanyById(id: $id) {
+      ...CompanyDetailsFragment
+    }
+  }
+  ${COMPANY_DETAILS_FRAGMENT}
+`;
+
+export const UPDATE_COMPANY = gql`
+  mutation updateCompany(
+    $id: String!
+    $name: String
+    $website: String
+    $description: String
+    $companyNote: String
+    $isBlacklisted: Boolean
+    $isFavorite: Boolean
+  ) {
+    updateCompany(
+      input: {
+        id: $id
+        name: $name
+        website: $website
+        description: $description
+        companyNote: $companyNote
+        isBlacklisted: $isBlacklisted
+        isFavorite: $isFavorite
+      }
+    ) {
+      ...CompanyDetailsFragment
+    }
+  }
+  ${COMPANY_DETAILS_FRAGMENT}
 `;
 
 export const CREATE_JOB_APPLICATION_MUTATION = gql`

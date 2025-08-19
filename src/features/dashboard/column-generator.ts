@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import type { CompanyFragment } from '@/features/dashboard/graphql/fragments';
 
 import { CompanyCell } from './components/CompanyCell';
 import { CurrentStageSelectCell } from './components/CurrentStageSelectCell';
@@ -122,10 +123,7 @@ const generateDataColumn = (
       return {
         ...baseColumn,
         cell: ({ row }) => {
-          const company = row.getValue(key) as {
-            id: string;
-            name: string;
-          };
+          const company = row.getValue(key) as CompanyFragment;
           return React.createElement(CompanyCell, { company });
         },
         filterFn: (row, id, value) => {

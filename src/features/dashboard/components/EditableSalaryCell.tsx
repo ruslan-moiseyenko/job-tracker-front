@@ -107,7 +107,7 @@ export function EditableSalaryCell({ application }: EditableSalaryCellProps) {
 
   return (
     <div
-      className="text-right font-medium cursor-pointer hover:bg-muted/50 rounded px-2 py-1 min-h-[2rem] flex items-center justify-end"
+      className="text-right font-medium cursor-text hover:bg-muted/50 rounded px-2 py-1 min-h-[2rem] flex items-center justify-end"
       onClick={() => setIsEditing(true)}
       title="Click to edit"
     >

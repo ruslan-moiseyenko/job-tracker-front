@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import type { IAuthClient } from '@/auth/types';
 import { ErrorPage } from '@/components/common/ErrorPage';
 import { RouterApolloSetup } from '@/components/common/RouterApolloSetup';
+import type { IAuthClient } from '@/features/auth/types';
 
 interface IRouterContext {
   auth: IAuthClient;

@@ -106,7 +106,7 @@ export function EditablePositionCell({
 
   const renderCell = () => (
     <div
-      className="capitalize cursor-pointer hover:bg-muted/50 rounded px-2 py-1 min-h-[2rem] flex items-center"
+      className="capitalize cursor-text hover:bg-muted/50 rounded px-2 py-1 min-h-[2rem] flex items-center"
       onClick={() => setIsEditing(true)}
       title={shouldShowTooltip ? undefined : 'Click to edit'}
     >

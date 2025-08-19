@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 
-import { SET_LAST_ACTIVE_SEARCH } from '@/app-sidebar/sidebar.queries';
-import { GET_ME_QUERY } from '@/auth/queries';
-import type { User } from '@/auth/types';
+import { SET_LAST_ACTIVE_SEARCH } from '@/features/app-sidebar/sidebar.queries';
+import { GET_ME_QUERY } from '@/features/auth/queries';
+import type { User } from '@/features/auth/types';
 import { logger } from '@/lib/logger';
 
 interface SetLastActiveSearchResponse {

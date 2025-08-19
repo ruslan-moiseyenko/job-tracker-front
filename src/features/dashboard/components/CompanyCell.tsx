@@ -1,22 +1,27 @@
 import React from 'react';
 
+import { Skull, Star } from 'lucide-react';
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import type { CompanyFragment } from '@/features/dashboard/graphql/fragments';
 
 import { DISPLAY_LIMITS } from '../dashboard.constants';
+import { CompanySheet } from './company-sheet/company-sheet';
 
 interface CompanyCellProps {
-  company: {
-    id: string;
-    name: string;
-  };
+  company: CompanyFragment;
 }
 
 export const CompanyCell: React.FC<CompanyCellProps> = ({ company }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const openSheet = () => setIsOpen(true);
+  const closeSheet = () => setIsOpen(false);
   if (!company?.name) {
     return <span className="text-muted-foreground">No company</span>;
   }
@@ -38,20 +43,48 @@ export const CompanyCell: React.FC<CompanyCellProps> = ({ company }) => {
   const shouldShowTooltip =
     company.name.length > DISPLAY_LIMITS.COMPANY_NAME_DISPLAY_LENGTH + 3;
 
-  const renderCompany = () => <div className="capitalize">{truncatedName}</div>;
+  const getStatusIcon = () => {
+    if (company.isBlacklisted) {
+      return <Skull size={12} className="absolute -top-2 right-0" />;
+    }
+    if (company.isFavorite) {
+      return <Star size={12} className="absolute -top-2 right-0" />;
+    }
+    return null;
+  };
 
-  if (shouldShowTooltip) {
-    return (
-      <TooltipProvider>
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>{renderCompany()}</TooltipTrigger>
-          <TooltipContent>
-            <p>{company.name}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
+  const renderCompany = () => (
+    <button
+      type="button"
+      onClick={openSheet}
+      className="capitalize relative text-left w-full hover:underline hover:text-primary underline-offset-4 cursor-pointer"
+      aria-label={`Open company ${company.name}`}
+    >
+      {getStatusIcon()}
+      {truncatedName}
+    </button>
+  );
 
-  return renderCompany();
+  return (
+    <>
+      {shouldShowTooltip ? (
+        <TooltipProvider>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>{renderCompany()}</TooltipTrigger>
+            <TooltipContent>
+              <p>{company.name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        renderCompany()
+      )}
+
+      <CompanySheet
+        companyId={company.id}
+        isOpen={isOpen}
+        onClose={closeSheet}
+      />
+    </>
+  );
 };
